@@ -1,0 +1,64 @@
+@use "./styles/styles.scss" as *;
+@import url("https://fonts.googleapis.com/css2?family=National+Park:wght@200..800&display=swap");
+
+@font-face {
+  font-family: "CuneiformComposite";
+  src: url("./assets/CuneiformComposite.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+html,
+body {
+  background-color: $fluffball;
+  color: $proton-red;
+  font-size: 16px;
+  font-family: "National Park", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+
+  header {
+    padding: 0px 20px;
+  }
+
+  h1 {
+    margin: 0px;
+  }
+
+  .cuneiform {
+    font-family: "CuneiformComposite", sans-serif;
+    font-size: 2.1rem;
+    font-weight: 400;
+    margin: 0px 5px;
+  }
+
+  button {
+    align-items: center;
+    appearance: none;
+    border-radius: 5px;
+    border-style: none;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: inline-flex;
+    font-family: inherit;
+    font-weight: 700;
+    height: 35px;
+    justify-content: center;
+    line-height: normal;
+    overflow: visible;
+    padding: 2px 24px;
+    margin: 0px 5px;
+    position: relative;
+    text-align: center;
+    text-transform: none;
+    transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 15ms linear 30ms, transform 270ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+    transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: auto;
+    will-change: transform, opacity;
+    z-index: 0;
+  }
+}

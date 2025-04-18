@@ -1,0 +1,148 @@
+@use "../styles/styles.scss" as *;
+
+button {
+  background-color: $light-christobel;
+  color: $black-raspberry;
+}
+
+.conjugator {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 70% 20% 10%;
+  padding: 20px 10px;
+
+  .error {
+    background-color: $nyc-taxi;
+    color: $proton-red;
+    padding: 10px;
+  }
+
+  .withLabels {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+    padding-left: 20px;
+
+    label {
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+    }
+  }
+
+  // https://moderncss.dev/pure-css-custom-styled-radio-buttons/
+  input[type="radio"] {
+    appearance: none;
+    background-color: #fff;
+    margin: 0;
+    margin-right: 10px;
+    font: inherit;
+    color: black;
+    width: 1.15em;
+    height: 1.15em;
+    border: 0.15em solid black;
+    border-radius: 50%;
+    transform: translateY(-0.075em);
+    display: grid;
+    place-content: center;
+    cursor: pointer;
+  }
+
+  input[type="radio"]::before {
+    content: "";
+    width: 0.65em;
+    height: 0.65em;
+    border-radius: 50%;
+    transform: scale(0);
+    transition: 120ms transform ease-in-out;
+    box-shadow: inset 1em 1em $proton-red;
+  }
+
+  input[type="radio"]:checked::before {
+    transform: scale(1);
+  }
+
+  // https://moderncss.dev/pure-css-custom-checkbox-style/
+  input[type="checkbox"] {
+    appearance: none;
+    background-color: #fff;
+    margin: 0px 10px 10px 0px;
+    font: inherit;
+    color: black;
+    width: 1.15em;
+    height: 1.15em;
+    border: 0.15em solid black;
+    border-radius: 0.15em;
+    transform: translateY(-0.075em);
+    display: grid;
+    place-content: center;
+  }
+
+  input[type="checkbox"]::before {
+    content: "";
+    width: 0.65em;
+    height: 0.65em;
+    transform: scale(0);
+    transition: 120ms transform ease-in-out;
+    box-shadow: inset 1em 1em $proton-red;
+    transform-origin: bottom left;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  }
+
+  input[type="checkbox"]:checked::before {
+    transform: scale(1);
+  }
+
+  .selectors {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+
+    p {
+      margin: 5px;
+    }
+
+    .firstColumn,
+    .secondColumn {
+      padding: 0px 15%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
+
+      span {
+        margin: 10px;
+      }
+
+      & > div {
+        margin: 5px;
+      }
+    }
+  }
+
+  .result {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: center;
+
+    .cuneiform {
+      font-size: 2.5rem;
+      margin: 0px 5px;
+    }
+
+    .translation {
+      font-size: 1.5rem;
+      margin: 0px 5px;
+    }
+  }
+
+  .buttons {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    text-align: center;
+  }
+}
