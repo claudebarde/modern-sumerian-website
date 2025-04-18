@@ -22,7 +22,7 @@ module ReactSelect = {
     @module("react-select") @react.component
     external make: (
         ~options: array<selectOption>,
-        ~defaultValue: option<selectOption>,
+        ~value: Nullable.t<selectOption>,
         ~onChange: (selectOption) => (),
     ) => React.element = "default"
 }
@@ -30,22 +30,25 @@ module ReactSelect = {
 @react.component
 let make = () => {
     let (error, setError) = React.useState(_ => None)
-    let (verbStem, setVerbStem) = React.useState(_ => None)
+    let (verbStem, setVerbStem) = React.useState(_ => Nullable.null)
     let (verbForm, setVerbForm) = React.useState(_ => None)
     let (isPerfective, setIsPerfective) = React.useState(_ => None)
     let (isTransitive, setIsTransitive) = React.useState(_ => None)
     let (preformative, setPreformative) = React.useState(_ => None)
-    let (modal, setModal) = React.useState(_ => None)
-    let (negative, setNegative) = React.useState(_ => None)
-    let (ventive, setVentive) = React.useState(_ => None)
-    let (comitative, setComitative) = React.useState(_ => None)
-    let (ablative, setAblative) = React.useState(_ => None)
-    let (terminative, setTerminative) = React.useState(_ => None)
-    let (middlePrefix, setMiddlePrefix) = React.useState(_ => None)
-    let (initialPersonPrefix, setInitialPersonPrefix) = React.useState(_ => None)
+    let (modal, setModal) = React.useState(_ => false)
+    let (negative, setNegative) = React.useState(_ => false)
+    let (ventive, setVentive) = React.useState(_ => false)
+    let (comitative, setComitative) = React.useState(_ => false)
+    let (ablative, setAblative) = React.useState(_ => false)
+    let (terminative, setTerminative) = React.useState(_ => false)
+    let (middlePrefix, setMiddlePrefix) = React.useState(_ => false)
+    let (initialPersonPrefix, setInitialPersonPrefix) = React.useState(_ => Nullable.null)
+    let (subject, setSubject) = React.useState(_ => Nullable.null)
+    let (object, setObject) = React.useState(_ => Nullable.null)
+    let (indirectObject, setIndirectObject) = React.useState(_ => Nullable.null)
 
     let verbOptions: array<ReactSelect.selectOption> = [
-        {label: "ak", value: "ak"},
+        {label: "ak", value: "ʔak"},
         {label: "ĝen", value: "ĝen"},
         {label: "tuku", value: "tuku"},
     ]
@@ -61,75 +64,66 @@ let make = () => {
         {label: "They (non-human)", value: "third-plur-nonhuman"},
     ]
 
-    let onChange = (val: ReactSelect.selectOption) => {
-        Js.log(val)
-    }
-
     let setNewVerbStem = (val: ReactSelect.selectOption) => {
-        setVerbStem(_ => Some(val.value))
+        setVerbStem(_ => val->Nullable.make)
         setVerbForm(_ => Some(FiniteVerb.new(val.value)))
         setError(_ => None)
     }
 
-    let changeSubject = (val: ReactSelect.selectOption) => {
+    let changePronoun = (val: ReactSelect.selectOption, pronoun: string) => {
         if (Option.isNone(isPerfective) && Option.isNone(isTransitive)) {
             setError(_ => Some("Aspect and transitivity must be selected"))
         } else {
-            switch val.value->WebUtils.pronounToPersonParam {
-                | Some(personParam) => {
+            switch (pronoun, val.value->WebUtils.pronounToPersonParam) {
+                | ("initial-person-prefix", Some(personParam)) => {
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
                             | Some(verb) => {
                                 setError(_ => None)
-                                Some(FiniteVerb.setSubject(verb, personParam))
-                            }
-                            | None => None
-                        }
-                    })
-                }
-                | None => ()
-            }
-        }
-    }
-
-    let changeObject = (val: ReactSelect.selectOption) => {
-        if (Option.isNone(isPerfective) && Option.isNone(isTransitive)) {
-            setError(_ => Some("Aspect and transitivity must be selected"))
-        } else {
-            switch val.value->WebUtils.pronounToPersonParam {
-                | Some(personParam) => {
-                    setVerbForm(prevVerbForm => {
-                        switch prevVerbForm {
-                            | Some(verb) => {
-                                setError(_ => None)
-                                Some(FiniteVerb.setObject(verb, personParam))
-                            }
-                            | None => None
-                        }
-                    })
-                }
-                | None => ()
-            }
-        }
-    }
-
-    let changeInitialPersonPrefix = (val: ReactSelect.selectOption) => {
-        if (Option.isNone(isPerfective) && Option.isNone(isTransitive)) {
-            setError(_ => Some("Aspect and transitivity must be selected"))
-        } else {
-            switch val.value->WebUtils.pronounToPersonParam {
-                | Some(personParam) => {
-                    setVerbForm(prevVerbForm => {
-                        switch prevVerbForm {
-                            | Some(verb) => {
-                                setError(_ => None)
+                                setInitialPersonPrefix(_ => personParam->Nullable.make)
                                 Some(FiniteVerb.setInitialPersonPrefix(verb, personParam))
                             }
                             | None => None
                         }
                     })
                 }
-                | None => ()
+                | ("subject", Some(personParam)) => {
+                    setVerbForm(prevVerbForm => {
+                        switch prevVerbForm {
+                            | Some(verb) => {
+                                setError(_ => None)
+                                setSubject(_ => personParam->Nullable.make)
+                                Some(FiniteVerb.setSubject(verb, personParam))
+                            }
+                            | None => None
+                        }
+                    })
+                }
+                | ("object", Some(personParam)) => {
+                    setVerbForm(prevVerbForm => {
+                        switch prevVerbForm {
+                            | Some(verb) => {
+                                setError(_ => None)
+                                setObject(_ => personParam->Nullable.make)
+                                Some(FiniteVerb.setObject(verb, personParam))
+                            }
+                            | None => None
+                        }
+                    })
+                }
+                | ("indirect-object", Some(personParam)) => {
+                    setVerbForm(prevVerbForm => {
+                        switch prevVerbForm {
+                            | Some(verb) => {
+                                setError(_ => None)
+                                setIndirectObject(_ => personParam->Nullable.make)
+                                Some(FiniteVerb.setIndirectObject(verb, personParam))
+                            }
+                            | None => None
+                        }
+                    })
+                }
+                | _ => ()
             }
         }
     }
@@ -164,93 +158,133 @@ let make = () => {
     }
 
     let changePrefix = (value: string, checked: bool) => {
-        if Option.isNone(verbStem) {
+        if Nullable.isNullable(verbStem) {
             setError(_ => Some("No verb stem selected"))
         } else if (Option.isNone(isPerfective) && Option.isNone(isTransitive)) {
             setError(_ => Some("Aspect and transitivity must be selected"))
         } else {
             switch value {
                 | "modal" => {
-                    setModal(_ => checked ? Some(true) : Some(false))
+                    setModal(_ => checked)
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
                             | Some(verb) => {
                                 setError(_ => None)
-                                Some(FiniteVerb.setModal(verb))
+                                if checked {
+                                    setModal(_ => checked)
+                                    Some(FiniteVerb.setModal(verb))
+                                } else {
+                                    setModal(_ => checked)
+                                    Some(FiniteVerb.resetModal(verb))
+                                }
                             }
                             | None => None
                         }
                     })
                 }
                 | "negative" => {
-                    setNegative(_ => checked ? Some(true) : Some(false))
+                    setNegative(_ => checked)
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
                             | Some(verb) => {
                                 setError(_ => None)
-                                Some(FiniteVerb.setNegative(verb))
+                                if checked {
+                                    setNegative(_ => checked)
+                                    Some(FiniteVerb.setNegative(verb))
+                                } else {
+                                    setNegative(_ => checked)
+                                    Some(FiniteVerb.resetNegative(verb))
+                                }
                             }
                             | None => None
                         }
                     })
                 }
                 | "ventive" => {
-                    setVentive(_ => checked ? Some(true) : Some(false))
+                    setVentive(_ => checked)
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
                             | Some(verb) => {
                                 setError(_ => None)
-                                Some(FiniteVerb.setVentive(verb))
+                                if checked {
+                                    setVentive(_ => checked)
+                                    Some(FiniteVerb.setVentive(verb))
+                                } else {
+                                    setVentive(_ => checked)
+                                    Some(FiniteVerb.resetVentive(verb))
+                                }
                             }
                             | None => None
                         }
                     })
                 }
                 | "comitative" => {
-                    setComitative(_ => checked ? Some(true) : Some(false))
+                    setComitative(_ => checked)
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
                             | Some(verb) => {
                                 setError(_ => None)
-                                Some(FiniteVerb.setComitative(verb, initialPersonPrefix))
+                                if checked {
+                                    setComitative(_ => checked)
+                                    Some(FiniteVerb.setComitative(verb, initialPersonPrefix->Nullable.toOption))
+                                } else {
+                                    setComitative(_ => checked)
+                                    Some(FiniteVerb.resetComitative(verb))
+                                }
                             }
                             | None => None
                         }
                     })
                 }
                 | "ablative" => {
-                    setAblative(_ => checked ? Some(true) : Some(false))
+                    setAblative(_ => checked)
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
                             | Some(verb) => {
                                 setError(_ => None)
-                                // Some(FiniteVerb.setAblative(verb))
-                                None
+                                if checked {
+                                    setAblative(_ => checked)
+                                    Some(FiniteVerb.setAblative(verb, initialPersonPrefix->Nullable.toOption))
+                                } else {
+                                    setAblative(_ => checked)
+                                    Some(FiniteVerb.resetAblative(verb))
+                                }
                             }
                             | None => None
                         }
                     })
                 }
                 | "terminative" => {
-                    setTerminative(_ => checked ? Some(true) : Some(false))
+                    setTerminative(_ => checked)
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
                             | Some(verb) => {
                                 setError(_ => None)
-                                // Some(FiniteVerb.setTerminative(verb))
-                                None
+                                if checked {
+                                    setTerminative(_ => checked)
+                                    Some(FiniteVerb.setTerminative(verb, initialPersonPrefix->Nullable.toOption))
+                                } else {
+                                    setTerminative(_ => checked)
+                                    Some(FiniteVerb.resetTerminative(verb))
+                                }
                             }
                             | None => None
                         }
                     })
                 }
                 | "middle-prefix" => {
-                    setMiddlePrefix(_ => checked ? Some(true) : Some(false))
+                    setMiddlePrefix(_ => checked)
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
                             | Some(verb) => {
                                 setError(_ => None)
-                                Some(FiniteVerb.setMiddlePrefix(verb))
+                                if checked {
+                                    setMiddlePrefix(_ => checked)
+                                    Some(FiniteVerb.setMiddlePrefix(verb))
+                                } else {
+                                    setMiddlePrefix(_ => checked)
+                                    Some(FiniteVerb.resetMiddlePrefix(verb))
+                                }
                             }
                             | None => None
                         }
@@ -268,7 +302,11 @@ let make = () => {
                     <span>
                         {"Verb Stem"->React.string}
                     </span>
-                    <ReactSelect options={verbOptions} defaultValue={None} onChange={setNewVerbStem} />
+                    <ReactSelect 
+                        options={verbOptions} 
+                        value={verbStem} 
+                        onChange={setNewVerbStem} 
+                    />
                 </div>
                 <div>
                     <p>
@@ -390,8 +428,13 @@ let make = () => {
                     </span>
                     <ReactSelect 
                         options={pronounOptions} 
-                        defaultValue={None}
-                        onChange={changeSubject}
+                        value={
+                            switch subject {
+                                | Value(pp) => ReactSelect.personParamToOption(pp)->Nullable.make
+                                | _ => Nullable.null
+                            }
+                        }
+                        onChange={changePronoun(_, "subject")}
                     />
                 </div>
                 <div>
@@ -400,8 +443,13 @@ let make = () => {
                     </span>
                     <ReactSelect 
                         options={pronounOptions} 
-                        defaultValue={None}
-                        onChange={changeObject}
+                        value={
+                            switch object {
+                                | Value(pp) => ReactSelect.personParamToOption(pp)->Nullable.make
+                                | _ => Nullable.null
+                            }
+                        }
+                        onChange={changePronoun(_, "object")}
                     />
                 </div>
                 <div>
@@ -410,8 +458,13 @@ let make = () => {
                     </span>
                     <ReactSelect 
                         options={pronounOptions}
-                        defaultValue={None} 
-                        onChange 
+                        value={
+                            switch indirectObject {
+                                | Value(pp) => ReactSelect.personParamToOption(pp)->Nullable.make
+                                | _ => Nullable.null
+                            }
+                        }
+                        onChange={changePronoun(_, "indirect-object")}
                     />
                 </div>
             </div>
@@ -468,13 +521,13 @@ let make = () => {
                     </span>
                     <ReactSelect 
                         options={pronounOptions} 
-                        defaultValue={
+                        value={
                             switch initialPersonPrefix {
-                                | Some(pp) => Some(ReactSelect.personParamToOption(pp))
-                                | None => None
+                                | Value(pp) => ReactSelect.personParamToOption(pp)->Nullable.make
+                                | _ => Nullable.null
                             }
                         }
-                        onChange={changeInitialPersonPrefix}
+                        onChange={changePronoun(_, "initial-person-prefix")}
                     />
                 </div>
                 <div>
@@ -487,11 +540,7 @@ let make = () => {
                                 type_="checkbox" 
                                 name="modal" 
                                 value="modal"
-                                checked={switch modal {
-                                    | Some(true) => true
-                                    | Some(false) => false
-                                    | None => false
-                                }}
+                                checked={modal}
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
                                     let value: string = target["value"]
@@ -506,11 +555,7 @@ let make = () => {
                                 type_="checkbox" 
                                 name="negative" 
                                 value="negative" 
-                                checked={switch negative {
-                                    | Some(true) => true
-                                    | Some(false) => false
-                                    | None => false
-                                }}
+                                checked={negative}
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
                                     let value: string = target["value"]
@@ -525,11 +570,7 @@ let make = () => {
                                 type_="checkbox" 
                                 name="ventive" 
                                 value="ventive" 
-                                checked={switch ventive {
-                                    | Some(true) => true
-                                    | Some(false) => false
-                                    | None => false
-                                }}
+                                checked={ventive}
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
                                     let value: string = target["value"]
@@ -546,11 +587,7 @@ let make = () => {
                                 type_="checkbox" 
                                 name="comitative" 
                                 value="comitative" 
-                                checked={switch comitative {
-                                    | Some(true) => true
-                                    | Some(false) => false
-                                    | None => false
-                                }}
+                                checked={comitative}
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
                                     let value: string = target["value"]
@@ -565,11 +602,7 @@ let make = () => {
                                 type_="checkbox" 
                                 name="ablative" 
                                 value="ablative" 
-                                checked={switch ablative {
-                                    | Some(true) => true
-                                    | Some(false) => false
-                                    | None => false
-                                }}
+                                checked={ablative}
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
                                     let value: string = target["value"]
@@ -584,11 +617,7 @@ let make = () => {
                                 type_="checkbox" 
                                 name="terminative" 
                                 value="terminative" 
-                                checked={switch terminative {
-                                    | Some(true) => true
-                                    | Some(false) => false
-                                    | None => false
-                                }}
+                                checked={terminative}
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
                                     let value: string = target["value"]
@@ -605,11 +634,7 @@ let make = () => {
                                 type_="checkbox" 
                                 name="middle-prefix" 
                                 value="middle-prefix" 
-                                checked={switch middlePrefix {
-                                    | Some(true) => true
-                                    | Some(false) => false
-                                    | None => false
-                                }}
+                                checked={middlePrefix}
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
                                     let value: string = target["value"]
@@ -643,10 +668,23 @@ let make = () => {
         </div>
         <div className={styles["buttons"]}>
             <button onClick={_ => {
-                setVerbStem(_ => None)
+                setVerbStem(_ => Nullable.null)
                 setVerbForm(_ => None)
                 setIsPerfective(_ => None)
                 setIsTransitive(_ => None)
+                setPreformative(_ => None)
+                setModal(_ => false)
+                setNegative(_ => false)
+                setVentive(_ => false)
+                setComitative(_ => false)
+                setAblative(_ => false)
+                setTerminative(_ => false)
+                setMiddlePrefix(_ => false)
+                setInitialPersonPrefix(_ => Nullable.null)
+                setSubject(_ => Nullable.null)
+                setObject(_ => Nullable.null)
+                setIndirectObject(_ => Nullable.null)
+                setError(_ => None)
             }}>
                 {"Clear"->React.string}
             </button>

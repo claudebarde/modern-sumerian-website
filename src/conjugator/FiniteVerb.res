@@ -74,21 +74,36 @@ let isIntransitive = (verb: t): t => {
 let setNegative = (verb: t): t => {
     {...verb, firstPrefix: Some(FirstPrefix.Negative)}
 }
+let resetNegative = (verb: t): t => {
+    {...verb, firstPrefix: None}
+}
 
 let setModal = (verb: t): t => {
     {...verb, firstPrefix: Some(FirstPrefix.Modal)}
+}
+let resetModal = (verb: t): t => {
+    {...verb, firstPrefix: None}
 }
 
 let setPreformative = (verb: t, preformative: preformative): t => {
     {...verb, preformative: Some(preformative)}
 }
+let resetPreformative = (verb: t): t => {
+    {...verb, preformative: None}
+}
 
 let setCoordinator = (verb: t): t => {
     {...verb, coordinator: true}
 }
+let resetCoordinator = (verb: t): t => {
+    {...verb, coordinator: false}
+}
 
 let setVentive = (verb: t): t => {
     {...verb, ventive: true}
+}
+let resetVentive = (verb: t): t => {
+    {...verb, ventive: false}
 }
 
 let setTerminative = (verb: t, person: option<personParam>): t => {
@@ -105,6 +120,9 @@ let setTerminative = (verb: t, person: option<personParam>): t => {
     }
     {...verb, adverbial: Some(Terminative), initialPersonPrefix: ipp}
 }
+let resetTerminative = (verb: t): t => {
+    {...verb, adverbial: None, initialPersonPrefix: None}
+}
 
 let setAblative = (verb: t, person: option<personParam>): t => {
     let ipp: option<initialPersonPrefix> = switch person {
@@ -120,9 +138,15 @@ let setAblative = (verb: t, person: option<personParam>): t => {
     }
     {...verb, adverbial: Some(Ablative), initialPersonPrefix: ipp}
 }
+let resetAblative = (verb: t): t => {
+    {...verb, adverbial: None, initialPersonPrefix: None}
+}
 
 let setMiddlePrefix = (verb: t): t => {
     {...verb, middlePrefix: true}
+}
+let resetMiddlePrefix = (verb: t): t => {
+    {...verb, middlePrefix: false}
 }
 
 let setInitialPersonPrefix = (verb: t, ipp: personParam): t => {
@@ -178,6 +202,9 @@ let setComitative = (verb: t, person: option<personParam>): t => {
     }
     {...verb, comitative: true, initialPersonPrefix: ipp}
 }
+let resetComitative = (verb: t): t => {
+    {...verb, comitative: false, initialPersonPrefix: None}
+}
 
 let setLocativeIn = (verb: t, person: option<personParam>): t => {
     switch (person) {
@@ -191,6 +218,9 @@ let setLocativeOn = (verb: t, person: option<personParam>): t => {
         | Some(_) => {...verb, locative: Some(OnWithInitialPerson)}
         | None => {...verb, locative: Some(OnWithoutInitialPerson)}
     }
+}
+let resetLocative = (verb: t): t => {
+    {...verb, locative: None}
 }
 
 let setSubject = (verb: t, person: personParam): t => {
@@ -264,6 +294,9 @@ let setObliqueObject = (verb: t, person: personParam): t => {
 
 let setEdMarker = (verb: t): t => {
     {...verb, edMarker: true}
+}
+let resetEdMarker = (verb: t): t => {
+    {...verb, edMarker: false}
 }
 
 let print = (verb: t): result<string, string> => VerbOutput.print(verb)
