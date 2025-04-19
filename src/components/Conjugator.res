@@ -658,7 +658,14 @@ let make = () => {
                 }
                 | (Some(verb), None) => {
                     switch verb->FiniteVerb.print {
-                        | Ok(result) => {result->React.string}
+                        | Ok({verb, analysis}) => [
+                            <span key="verb-form">
+                                {verb->React.string}
+                            </span>,
+                            <span key="verb-analysis">
+                                {analysis->VerbAnalysis.print->React.string}
+                            </span>
+                        ]->React.array
                         | Error(err) => {err->React.string}
                     }
                 }

@@ -299,4 +299,4 @@ let resetEdMarker = (verb: t): t => {
     {...verb, edMarker: false}
 }
 
-let print = (verb: t): result<string, string> => VerbOutput.print(verb)
+let print = (verb: t): result<VerbOutput.multiResult, string> => VerbOutput.print(verb)

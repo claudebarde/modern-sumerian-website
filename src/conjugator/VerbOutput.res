@@ -1,6 +1,10 @@
 open Infixes 
 
 type t = array<string>;
+type multiResult = {
+    verb: string,
+    analysis: VerbAnalysis.t,
+}
 
 let firstPrefixPos = 0
 let preformativePos = 1
@@ -401,7 +405,7 @@ let consonantVowelSequence = (str: string): string => {
     ->Js.Array2.joinWith("")
 }
 
-let print = (verb: VerbShared.verbForm): result<string, string> => {
+let print = (verb: VerbShared.verbForm): result<multiResult, string> => {
     let newArr = Array.make(~length=15, "");
     // builds the array with all the markers
     let outputRes = 
@@ -746,7 +750,10 @@ let print = (verb: VerbShared.verbForm): result<string, string> => {
             // returns the final string
             switch outputRes {
                 | Error(err) => Error(err)
-                | Ok(outputArr) => outputArr -> Js.Array2.joinWith("") -> Ok;
+                | Ok(outputArr) => { 
+                    verb: outputArr->Js.Array2.joinWith(""),
+                    analysis: outputArr->VerbAnalysis.analyse(verb, VerbAnalysis.new(), 0)
+                }->Ok;
             }
         }
     };
