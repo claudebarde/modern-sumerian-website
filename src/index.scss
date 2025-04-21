@@ -8,6 +8,11 @@
   font-style: normal;
 }
 
+div#root {
+  padding: 0px;
+  margin: 0px;
+}
+
 html,
 body {
   background-color: $fluffball;
@@ -16,6 +21,8 @@ body {
   font-family: "National Park", sans-serif;
   font-optical-sizing: auto;
   font-weight: 700;
+  padding: 0px;
+  margin: 0px;
 
   header {
     padding: 0px 20px;

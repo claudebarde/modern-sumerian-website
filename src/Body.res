@@ -5,7 +5,6 @@ let make = () => {
     let url = RescriptReactRouter.useUrl()
     
     <div className={styles["body"]}>
-        <BodyNav />
         {
             switch url.path {
                 | list{"conjugator"} => <Conjugator />
