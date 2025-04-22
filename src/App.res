@@ -2,9 +2,5 @@
 
 @react.component
 let make = () => {
-  <main>
-    <Header />
-    <Body />
-    <Footer />
-  </main>
+  [<Header key="header" />, <Body key="body" />, <Footer key="footer" />]->React.array
 }
