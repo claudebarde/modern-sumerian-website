@@ -8,6 +8,7 @@ let make = () => {
         {
             switch url.path {
                 | list{"conjugator"} => <Conjugator />
+                | list{"cuneiforms"} => <Cuneiforms />
                 | list{"links"} => <Links />
                 | list{} | list{"home"} => <Home />
                 | _ => <PageNotFound/>

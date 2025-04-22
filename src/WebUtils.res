@@ -25,3 +25,7 @@ let pronounToPersonParam = (pronoun: string): option<Infixes.personParam> => {
     | _ => None
     }
 }
+
+let buildResults = (verb: FiniteVerb.t, breakdown: VerbAnalysis.t): React.element => {
+    <div>{"test"->React.string}</div>
+}

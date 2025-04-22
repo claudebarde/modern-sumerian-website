@@ -52,7 +52,6 @@ let make = () => {
                         <ul className={styles["dropdown"]}>
                             <li>
                                 <a 
-                                    href="#"
                                     onClick={_ => { RescriptReactRouter.push("conjugator") }}
                                 >
                                     {"Conjugator"->React.string}
@@ -60,7 +59,6 @@ let make = () => {
                             </li>
                             <li>
                                 <a 
-                                    href="#"
                                     onClick={_ => { RescriptReactRouter.push("cuneiforms") }}
                                 >
                                     {"Cuneiforms"->React.string}
@@ -68,7 +66,6 @@ let make = () => {
                             </li>
                             <li>
                                 <a 
-                                    href="#"
                                     onClick={_ => { RescriptReactRouter.push("dictionary") }}
                                 >
                                     {"Dictionary"->React.string}

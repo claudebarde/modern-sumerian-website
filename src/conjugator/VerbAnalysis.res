@@ -200,6 +200,78 @@ let rec analyse = (verbArr: array<string>, verbRec:VerbShared.verbForm, verb: t,
     }
 }
 
+let output = (verb: t): array<(string, string)> => {
+    let slot1 = switch verb.slot1 {
+        | None => ("", "")
+        | Some((prefix_type, prefix)) => switch prefix_type {
+            | FirstPrefix.Modal => ("modal", prefix)
+            | FirstPrefix.Negative => ("negative", prefix)
+        }
+    };
+    let slot2 = switch verb.slot2 {
+        | None => ("", "")
+        | Some(prefix) => ("preformative", prefix)
+    };
+    let slot3 = switch verb.slot3 {
+        | None => ("", "")
+        | Some(prefix) => ("coordinator", prefix)
+    };
+    let slot4 = switch verb.slot4 {
+        | None => ("", "")
+        | Some(prefix) => ("ventive", prefix)
+    };
+    let slot5 = switch verb.slot5 {
+        | None => ("", "")
+        | Some(prefix) => ("middlePrefix", prefix)
+    };
+    let slot6 = switch verb.slot6 {
+        | None => ("", "")
+        | Some((_, prefix)) => ("initialPersonPrefix", prefix)
+    };
+    let slot7 = switch verb.slot7 {
+        | None => ("", "")
+        | Some(prefix) => ("dativePrefix", prefix)
+    };
+    let slot8 = switch verb.slot8 {
+        | None => ("", "")
+        | Some(prefix) => ("comitativePrefix", prefix)
+    };
+    let slot9 = switch verb.slot9 {
+        | None => ("", "")
+        | Some((prefix_type, prefix)) => switch prefix_type {
+            | Infixes.Ablative => ("ablative", prefix)
+            | Infixes.Terminative => ("terminative", prefix)
+        }
+    };
+    let slot10 = switch verb.slot10 {
+        | None => ("", "")
+        | Some(prefix) => ("locative", prefix)
+    };
+    let slot11 = switch verb.slot11 {
+        | None => ("", "")
+        | Some((_, prefix)) => ("finalPersonPrefix", prefix)
+    };
+    let slot12 = switch verb.slot12 {
+        | None => ("", "")
+        | Some(prefix) => ("stem", prefix)
+    };
+    let slot13 = switch verb.slot13 {
+        | None => ("", "")
+        | Some(prefix) => ("edMarker", prefix)
+    };
+    let slot14 = switch verb.slot14 {
+        | None => ("", "")
+        | Some((_, prefix)) => ("finalPersonSuffix", prefix)
+    };
+    let slot15 = switch verb.slot15 {
+        | None => ("", "")
+        | Some(prefix) => ("subordinator", prefix)
+    };
+
+    [slot1, slot2, slot3, slot4, slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14, slot15]
+    ->Array.filter(((x, y)) => String.length(x) > 0 || String.length(y) > 0)
+}
+
 let print = (verb: t): string => {
     let slot1 = switch verb.slot1 {
         | None => ""

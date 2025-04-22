@@ -130,6 +130,14 @@ button {
     align-items: center;
     text-align: center;
 
+    .resultVerbForms {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      gap: 10px;
+    }
+
     .cuneiform {
       font-size: 2.5rem;
       margin: 0px 5px;
