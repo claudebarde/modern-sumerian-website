@@ -11,6 +11,8 @@
 div#root {
   padding: 0px;
   margin: 0px;
+  height: 100vh;
+  width: 100vw;
 }
 
 html,
@@ -23,6 +25,8 @@ body {
   font-weight: 700;
   padding: 0px;
   margin: 0px;
+  height: 100vh;
+  width: 100vw;
 
   header {
     padding: 0px 20px;
