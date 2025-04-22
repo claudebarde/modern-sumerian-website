@@ -16,25 +16,63 @@ header {
       padding: 0;
       display: flex;
       gap: 1rem;
+      color: $black-raspberry;
 
       li {
         margin: 0; // Removes default margin
         padding: 10px; // Removes default padding
         list-style: none; // Ensures no list styling
+        position: relative;
 
-        button {
+        &:hover {
+          cursor: pointer;
+
+          & > ul.dropdown {
+            visibility: visible;
+            opacity: 1;
+            display: block;
+          }
+        }
+
+        ul.dropdown {
+          visibility: hidden;
+          opacity: 0;
+          position: absolute;
+          transition: all 0.5s ease;
+          right: 0;
+          display: none;
+          background-color: $fluffball;
+          margin-top: 0.5rem;
+          z-index: 100;
+          border: solid 1px $proton-red;
+          border-radius: 5px;
+
+          &:hover {
+            visibility: visible;
+            opacity: 1;
+            display: block;
+          }
+
+          li {
+            padding: 15px 25px;
+            transition: all 0.5s ease;
+
+            &:hover {
+              background-color: $proton-red;
+              color: $nyc-taxi;
+            }
+          }
+        }
+
+        a {
           background: none;
           border: none;
           cursor: pointer;
           font-size: 1rem;
-          color: $black-raspberry; // Inherit color from parent
+          color: inherit; // Inherit color from parent
           text-decoration: none; // Remove underline
           padding: 0; // Remove padding
           margin: 0; // Remove margin
-
-          &:hover {
-            font-style: italic;
-          }
 
           &.active {
             text-decoration: underline;

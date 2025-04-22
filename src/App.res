@@ -5,8 +5,6 @@ let make = () => {
   <main>
     <Header />
     <Body />
-    <div>
-      {"footer"->React.string}
-    </div>
+    <Footer />
   </main>
 }

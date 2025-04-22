@@ -19,10 +19,10 @@ let make = () => {
         </h1>
         </div>
         <div>
-            <nav className={styles["navColumn"]}>
+            <nav className={styles["navColumn"]} role="navigation">
             <ul>
                 <li>
-                    <button
+                    <a
                         className={
                             switch url.path->List.head {
                             | Some(_) => styles[""]
@@ -33,24 +33,49 @@ let make = () => {
                             RescriptReactRouter.push("/")
                         }}>
                         {"Home"->React.string}
-                    </button>
+                    </a>
                 </li>
                 <li>
-                    <button
+                    <a
                         className={
                             switch url.path->List.head {
                             | Some(path) if path === "conjugator" => styles["active"]
+                            | Some(path) if path === "cuneiforms" => styles["active"]
+                            | Some(path) if path === "dictionary" => styles["active"]
                             | _ => styles[""]
                             }
-                        }
-                        onClick={_ => {
-                            RescriptReactRouter.push("conjugator")
-                        }}>
-                        {"Conjugator"->React.string}
-                    </button>
+                        }>
+                        {"Tools"->React.string}
+                    </a>
+                    <ul className={styles["dropdown"]}>
+                        <li>
+                            <a 
+                                href="#"
+                                onClick={_ => { RescriptReactRouter.push("conjugator") }}
+                            >
+                                {"Conjugator"->React.string}
+                            </a>
+                        </li>
+                        <li>
+                            <a 
+                                href="#"
+                                onClick={_ => { RescriptReactRouter.push("cuneiforms") }}
+                            >
+                                {"Cuneiforms"->React.string}
+                            </a>
+                        </li>
+                        <li>
+                            <a 
+                                href="#"
+                                onClick={_ => { RescriptReactRouter.push("dictionary") }}
+                            >
+                                {"Dictionary"->React.string}
+                            </a>
+                        </li>
+                    </ul>
                 </li>
                 <li>
-                    <button
+                    <a
                         className={
                             switch url.path->List.head {
                             | Some(path) if path === "links" => styles["active"]
@@ -61,7 +86,7 @@ let make = () => {
                             RescriptReactRouter.push("links")
                         }}>
                         {"Links"->React.string}
-                    </button>
+                    </a>
                 </li>
             </ul>
         </nav>
