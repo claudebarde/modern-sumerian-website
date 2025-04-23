@@ -649,31 +649,17 @@ let make = () => {
             </div>
         </div>
         <div className={styles["result"]}>
-            <div className={styles["resultVerbForms"]}>
-                {
-                    switch ((verbForm), error) {
-                    | (_, Some(err)) => {
-                        <span className={styles["error"]}>
-                            {err->React.string}
-                        </span>
-                    }
-                    | (Some(verb), None) => {
-                        switch verb->FiniteVerb.print {
-                            | Ok({verb, analysis}) => [
-                                <span key="verbForm">
-                                    {verb->React.string}
-                                </span>,
-                                <span key="verbAnalysis">
-                                    {analysis->VerbAnalysis.print->React.string}
-                                </span>
-                            ]->React.array
-                            | Error(err) => {err->React.string}
-                        }
-                    }
-                    | (None, None) => <span>{"No Selected Verb"->React.string}</span>
-                    }
+            {
+                switch ((verbForm), error) {
+                | (_, Some(err)) => {
+                    <span className={styles["error"]}>
+                        {err->React.string}
+                    </span>
                 }
-            </div>
+                | (Some(verb), None) => WebUtils.buildResults(verb)
+                | (None, None) => <span>{"No Selected Verb"->React.string}</span>
+                }
+            }
         </div>
         <div className={styles["buttons"]}>
             <button onClick={_ => {

@@ -16,7 +16,7 @@ header {
       padding: 0;
       display: flex;
       gap: 1rem;
-      color: $black-raspberry;
+      color: $dark-rift;
 
       li {
         margin: 0; // Removes default margin
@@ -41,7 +41,7 @@ header {
           transition: all 0.5s ease;
           right: 0;
           display: none;
-          background-color: $fluffball;
+          background-color: $white-smoke;
           margin-top: 0.5rem;
           z-index: 100;
           border: solid 1px $proton-red;

@@ -230,11 +230,11 @@ let output = (verb: t): array<(string, string)> => {
     };
     let slot7 = switch verb.slot7 {
         | None => ("", "")
-        | Some(prefix) => ("dativePrefix", prefix)
+        | Some(prefix) => ("dative", prefix)
     };
     let slot8 = switch verb.slot8 {
         | None => ("", "")
-        | Some(prefix) => ("comitativePrefix", prefix)
+        | Some(prefix) => ("comitative", prefix)
     };
     let slot9 = switch verb.slot9 {
         | None => ("", "")

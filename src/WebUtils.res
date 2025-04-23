@@ -26,6 +26,47 @@ let pronounToPersonParam = (pronoun: string): option<Infixes.personParam> => {
     }
 }
 
-let buildResults = (verb: FiniteVerb.t, breakdown: VerbAnalysis.t): React.element => {
-    <div>{"test"->React.string}</div>
+let buildResults = (verb: FiniteVerb.t): Jsx.element => {
+    switch verb->FiniteVerb.print {
+        | Ok({verb, analysis}) => [
+            <span key="verbForm">
+                {verb->React.string}
+            </span>,
+            <table key="verbAnalysis">
+                <tbody>
+                    <tr>
+                        {analysis->VerbAnalysis.output->Array.map(
+                            ((output_type, _)) => {
+                                <th key={output_type}>
+                                    {
+                                        switch output_type {
+                                            | "middlePrefix" => "Middle Prefix"
+                                            | "initialPersonPrefix" => "Initial Person Prefix"
+                                            | "finalPersonPrefix" => "Final Person Prefix"
+                                            | "edMarker" => "ED Marker"
+                                            | "finalPersonSuffix" => "Final Person Suffix"
+                                            | _ => `${output_type->String.charAt(0)->String.toUpperCase}${output_type->String.sliceToEnd(~start=1)->String.toLowerCase}`
+                                        }->React.string
+                                    }
+                                </th>
+                            },
+                        )->React.array}
+                    </tr>
+                    <tr>
+                        {analysis->VerbAnalysis.output->Array.mapWithIndex(
+                            ((_, value), i) => {
+                                <td key={value ++ Int.toString(i)}>
+                                    {value->React.string}
+                                </td>
+                            },
+                        )->React.array}
+                    </tr>
+                </tbody>
+            </table>,
+            <span key="cuneiformWarning" style={{fontSize: "0.6rem", fontStyle: "italic"}}>
+                {"The cuneiforms are auto-generated and may not be historically accurate"->React.string}
+            </span>
+        ]->React.array
+        | Error(err) => {err->React.string}
+    }
 }
