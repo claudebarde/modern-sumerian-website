@@ -131,14 +131,23 @@ button {
     text-align: center;
     gap: 20px;
 
-    .cuneiform {
-      font-size: 2.5rem;
-      margin: 0px 5px;
+    .cuneiforms {
+      font-family: "CuneiformComposite", sans-serif;
+      font-size: 1.6rem;
+      font-weight: 400;
+      margin-left: 20px;
     }
 
     .translation {
       font-size: 1.5rem;
       margin: 0px 5px;
+    }
+
+    .verbResult {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
     }
 
     table {

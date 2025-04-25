@@ -12,53 +12,9 @@ type jsonCuneiformData = {
 @scope("JSON") @val
 external parseCuneiformData: string => jsonCuneiformData = "parse"
 
-let fallbackDict = Dict.fromArray([("eme", "0x12174"), ("ĝir15", "0x120A0"), ("ul", "0x12109"), ("la", "0x121B7"), ("im", "0x1214E"), ("ĝen", "0x1207A")]) 
+type cuneiformData = (string, string) // (Unicode code point, sound)
 
-/* let rec buildDictFromJson = (json: JSON.t): result<Dict.t<string>, string> => {
-    switch json {
-        | Array(arr) => 
-            // Console.log2("array:", arr)
-            let res = arr->Array.map((item) => buildDictFromJson(item))
-            Console.log2("res:", res)
-            // let reduce = res->Array.reduce(Ok(()), 
-            //     (item, acc) => 
-            //         switch item {
-            //             | Ok(_) => acc
-            //             | Error(err) => Error(err)
-            //         }
-            //     )
-            // switch reduce {
-            //     | Ok(_) => res->Array.map(item => Option.getUnsafe)->Dict.fromArray->Ok
-            //     | Error(err) => Error(err)
-            // }
-            Error("Invalid JSON format for dictionary")
-        | Object(obj) => {
-            Console.log2("object:", obj)
-            switch obj->Dict.get("codepoints") {
-                | Some(arr) => buildDictFromJson(arr)
-                | None => {
-                    switch (obj->Dict.get("codepoint")) {
-                        | Some(codepoint) => {
-                            switch (codepoint->Dict.get("codepoint"), codepoint->Dict.get("name")) {
-                                | (Some(codepoint), Some(name)) => switch (codepoint, name) {
-                                    | (String(codepoint), String(name)) => {
-                                        let code = codepoint->toNumber->String.fromCodePoint
-                                        let dict = Dict.fromArray([((code, name))])
-                                        Ok(dict)
-                                    }
-                                    | _ => Error("Invalid JSON format for dictionary")
-                                }
-                                | _ => Error("Invalid JSON format for dictionary")
-                            }
-                        }
-                        | None => Error("Invalid JSON format for dictionary")
-                    }
-                }
-            }
-        }
-        | _ => Error("Invalid JSON format for dictionary")
-    }
-} */
+let fallbackDict = Dict.fromArray([("eme", "0x12174"), ("ĝir15", "0x120A0"), ("ul", "0x12109"), ("la", "0x121B7"), ("im", "0x1214E"), ("ĝen", "0x1207A"), ("ʔak", "0x1201D"), ("tuku", "0x12307")]) 
 
 let searchCuneiforms = (words: array<string>): array<(string, option<string>)> => {
     let cuneiformData = cuneiformCodePoints->JSON.stringify->parseCuneiformData
@@ -76,13 +32,78 @@ let searchCuneiforms = (words: array<string>): array<(string, option<string>)> =
     })
 }
 
-let displayCuneiforms = (words: array<string>): array<string> => {
+let displayCuneiforms = (words: array<string>): array<cuneiformData> => {
     words->searchCuneiforms->Array.map(((word, codePoint)) => {
         switch codePoint {
-        | Some(code) => code->toNumber->String.fromCodePoint
-        | None => word
+        | Some(code) => (code->toNumber->String.fromCodePoint, word)
+        | None => (word, word)
         }
     })  
+}
+
+let parseVerbSyllables = (word: string, stem: string): array<string> => {
+    let regex = %re("/[^aeiu]*[aeiu]+(?:[^aeiu]*$|[^aeiu](?=[^aeiu]))?/gi")
+    let vowelsRegex = %re("/(?<=[aeiu])(?=[aeiu])/gi")
+    let cvcRegex = %re("/([^aeiu])([aeiu])([^aeiu])/gi")
+    let syllables = word->String.split(stem)
+    let (beforeStem, afterStem): (array<string>, array<string>) = switch (syllables[0], syllables[1]) {
+    | (Some(before), None) => {
+        let resBefore = switch String.match(before, regex) {
+        | Some(matches) => matches->Array.map(match => Option.getOr(match, ""))
+        | None => []
+        }
+
+        (resBefore, [])
+    }
+    | (None, Some(after)) => {
+        let resAfter = switch String.match(after, regex) {
+        | Some(matches) => matches->Array.map(match => Option.getOr(match, ""))
+        | None => []
+        }
+
+        ([], resAfter)
+    }
+    | (Some(before), Some(after)) => {
+        let resBefore = switch String.match(before, regex) {
+        | Some(matches) => {
+            matches->Array.map(match => Option.getOr(match, ""))
+        }
+        | None => []
+        }
+
+        let resAfter = switch String.match(after, regex) {
+        | Some(matches) => matches->Array.map(match => Option.getOr(match, ""))
+        | None => []
+        }
+
+        (resBefore, resAfter)
+    }
+    | (None, None) => ([], [])
+    }
+
+    let formatting = (syllables: array<string>): array<string> => {
+        let res = syllables
+        // splits clusters of vowels
+        ->Array.map(syll => syll->String.splitByRegExp(vowelsRegex))
+        ->Array.flat
+        ->Array.map(syll => Option.getOr(syll, ""))
+        // splits CVC clusters
+        ->Array.map(syll => switch syll->String.match(cvcRegex) {
+        | Some(matches) => matches->Array.map(match => {
+            let match = match->Option.getOr("")->String.split("")
+            switch (match[0], match[1], match[2]) {
+                | (Some(first), Some(middle), Some(last)) => [ first ++ middle, middle ++ last ]
+                | _ => []
+            }
+        })->Array.flat
+        | None => [syll]
+        })
+        ->Array.flat
+
+        res
+    }
+    
+    [...beforeStem->formatting, stem, ...afterStem]
 }
 
 let pronounToPersonParam = (pronoun: string): option<Infixes.personParam> => {
@@ -99,12 +120,29 @@ let pronounToPersonParam = (pronoun: string): option<Infixes.personParam> => {
     }
 }
 
+@module external resultStyles: {..} = "./components/Conjugator.module.scss"
 let buildResults = (verb: FiniteVerb.t): Jsx.element => {
     switch verb->FiniteVerb.print {
-        | Ok({verb, analysis}) => [
-            <span key="verbForm">
-                {verb->React.string}
-            </span>,
+        | Ok({verb: conjugatedVerb, analysis}) => [
+            <div className={resultStyles["verbResult"]} key="verbResults">
+                <span key="verbForm">
+                    {conjugatedVerb->React.string}
+                </span>
+                <span className="cuneiforms" key="cuneiforms">
+                    {
+                        conjugatedVerb
+                        ->parseVerbSyllables(verb.stem)
+                        ->displayCuneiforms
+                        ->Array.mapWithIndex(((codePoint, word), i) => {
+                            let element = <span key={codePoint ++ word ++ Int.toString(i)}>
+                                {codePoint->React.string}
+                            </span>
+                            React.cloneElement(element, {"data-tooltip": word})
+                        })
+                        ->React.array
+                    }
+                </span>
+            </div>,
             <table key="verbAnalysis">
                 <tbody>
                     <tr>

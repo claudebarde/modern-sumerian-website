@@ -10,6 +10,7 @@ let make = () => {
                 | list{"conjugator"} => <Conjugator />
                 | list{"cuneiforms"} => <Cuneiforms />
                 | list{"links"} => <Links />
+                | list{"lessons"} => <Lessons />
                 | list{} | list{"home"} => <Home />
                 | _ => <PageNotFound/>
             }

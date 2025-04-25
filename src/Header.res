@@ -11,11 +11,15 @@ let make = () => {
             <span>
                 {"Modern Sumerian"->React.string}
             </span>
-            <span className="cuneiform">
+            <span className="cuneiforms">
                 {["eme", "ĝir15"]
                 ->WebUtils.displayCuneiforms
-                ->Js.Array2.joinWith("")
-                ->React.string}
+                ->Array.mapWithIndex(((codePoint, word), i) => {
+                    <span key={codePoint ++ word ++ Int.toString(i)} title={word}>
+                        {codePoint->React.string}
+                    </span>
+                })
+                ->React.array}
             </span>
         </h1>
         </div>
@@ -72,6 +76,20 @@ let make = () => {
                                 </a>
                             </li>
                         </ul>
+                    </li>
+                    <li>
+                        <a
+                            className={
+                                switch url.path->List.head {
+                                | Some(path) if path === "lessons" => styles["active"]
+                                | _ => styles[""]
+                                }
+                            }
+                            onClick={_ => {
+                                RescriptReactRouter.push("lessons")
+                            }}>
+                            {"Lessons"->React.string}
+                        </a>
                     </li>
                     <li>
                         <a
