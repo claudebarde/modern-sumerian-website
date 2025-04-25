@@ -14,7 +14,7 @@ external parseCuneiformData: string => jsonCuneiformData = "parse"
 
 type cuneiformData = (string, string) // (Unicode code point, sound)
 
-let fallbackDict = Dict.fromArray([("eme", "0x12174"), ("ĝir15", "0x120A0"), ("ul", "0x12109"), ("la", "0x121B7"), ("im", "0x1214E"), ("ĝen", "0x1207A"), ("ʔak", "0x1201D"), ("tuku", "0x12307")]) 
+let fallbackDict = Dict.fromArray([("eme", "0x12174"), ("ĝir15", "0x120A0"), ("ul", "0x12109"), ("la", "0x121B7"), ("im", "0x1214E"), ("ĝen", "0x1207A"), ("ʔak", "0x1201D"), ("tuku", "0x12307"), ("niĝ", "0x120FB")]) 
 
 let searchCuneiforms = (words: array<string>): array<(string, option<string>)> => {
     let cuneiformData = cuneiformCodePoints->JSON.stringify->parseCuneiformData
@@ -30,6 +30,20 @@ let searchCuneiforms = (words: array<string>): array<(string, option<string>)> =
         }
         }
     })
+}
+
+let searchCuneiformsStartWith = (word: string): array<(string, string)> => {
+    let cuneiformData = cuneiformCodePoints->JSON.stringify->parseCuneiformData
+    // looks in the official dictionary
+    let resFromDict = cuneiformData.codepoints
+    ->Array.filter((item) => item.name->String.startsWith(word->String.toUpperCase))
+    ->Array.map((item) => (item.name, item.codepoint))
+    // looks in the fallback dictionary
+    let resFromFallback = fallbackDict
+    ->Dict.toArray
+    ->Array.filter(((dictWord, _)) => dictWord->String.startsWith(word->String.toLowerCase))
+    // merges the two results
+    [...resFromDict, ...resFromFallback]
 }
 
 let displayCuneiforms = (words: array<string>): array<cuneiformData> => {
