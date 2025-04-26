@@ -49,9 +49,13 @@ let make = () => {
     let (indirectObject, setIndirectObject) = React.useState(_ => Nullable.null)
 
     let verbOptions: array<ReactSelect.selectOption> = [
-        {label: "ak", value: "ʔak"},
-        {label: "ĝen", value: "ĝen"},
-        {label: "tuku", value: "tuku"},
+        {label: "ak (to do)", value: "ʔak"},
+        {label: "ĝen (to go)", value: "ĝen"},
+        {label: "gu (to eat)", value: "gu"},
+        {label: "naĝ (to drink)", value: "naĝ"},
+        {label: "sar (to write)", value: "sar"},
+        {label: "šum (to give)", value: "šum"},
+        {label: "tuku (to have)", value: "tuku"},
     ]
 
     let pronounOptions: array<ReactSelect.selectOption> = [
