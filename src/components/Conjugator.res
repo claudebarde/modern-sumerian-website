@@ -24,6 +24,7 @@ module ReactSelect = {
         ~options: array<selectOption>,
         ~value: Nullable.t<selectOption>,
         ~onChange: (selectOption) => (),
+        ~isDisabled: bool
     ) => React.element = "default"
 }
 
@@ -306,6 +307,7 @@ let make = () => {
                         options={verbOptions} 
                         value={verbStem} 
                         onChange={setNewVerbStem} 
+                        isDisabled={false}
                     />
                 </div>
                 <div>
@@ -435,6 +437,11 @@ let make = () => {
                             }
                         }
                         onChange={changePronoun(_, "subject")}
+                        isDisabled={
+                            isTransitive->Option.isNone 
+                            || isPerfective->Option.isNone
+                            || Nullable.isNullable(verbStem)    
+                        } 
                     />
                 </div>
                 <div>
@@ -450,6 +457,11 @@ let make = () => {
                             }
                         }
                         onChange={changePronoun(_, "object")}
+                        isDisabled={
+                            isTransitive->Option.isNone 
+                            || isPerfective->Option.isNone
+                            || Nullable.isNullable(verbStem)    
+                        } 
                     />
                 </div>
                 <div>
@@ -465,6 +477,11 @@ let make = () => {
                             }
                         }
                         onChange={changePronoun(_, "indirect-object")}
+                        isDisabled={
+                            isTransitive->Option.isNone 
+                            || isPerfective->Option.isNone
+                            || Nullable.isNullable(verbStem)    
+                        } 
                     />
                 </div>
             </div>
@@ -483,6 +500,11 @@ let make = () => {
                                     | Some(Infixes.A) => true
                                     | _ => false
                                 }}
+                                disabled={
+                                    isTransitive->Option.isNone 
+                                    || isPerfective->Option.isNone
+                                    || Nullable.isNullable(verbStem)    
+                                }
                                 onChange={changePreformative}
                             />
                             {"A"->React.string}
@@ -496,6 +518,11 @@ let make = () => {
                                     | Some(Infixes.I) => true
                                     | _ => false
                                 }}
+                                disabled={
+                                    isTransitive->Option.isNone 
+                                    || isPerfective->Option.isNone
+                                    || Nullable.isNullable(verbStem)    
+                                }
                                 onChange={changePreformative}
                             />
                             {"I"->React.string}
@@ -509,6 +536,11 @@ let make = () => {
                                     | Some(Infixes.U) => true
                                     | _ => false
                                 }}
+                                disabled={
+                                    isTransitive->Option.isNone 
+                                    || isPerfective->Option.isNone
+                                    || Nullable.isNullable(verbStem)    
+                                }
                                 onChange={changePreformative}
                             />
                             {"U"->React.string}
@@ -528,6 +560,11 @@ let make = () => {
                             }
                         }
                         onChange={changePronoun(_, "initial-person-prefix")}
+                        isDisabled={
+                            isTransitive->Option.isNone 
+                            || isPerfective->Option.isNone
+                            || Nullable.isNullable(verbStem)    
+                        } 
                     />
                 </div>
                 <div>
@@ -541,6 +578,11 @@ let make = () => {
                                 name="modal" 
                                 value="modal"
                                 checked={modal}
+                                disabled={
+                                    isTransitive->Option.isNone 
+                                    || isPerfective->Option.isNone
+                                    || Nullable.isNullable(verbStem)    
+                                }
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
                                     let value: string = target["value"]
@@ -556,6 +598,11 @@ let make = () => {
                                 name="negative" 
                                 value="negative" 
                                 checked={negative}
+                                disabled={
+                                    isTransitive->Option.isNone 
+                                    || isPerfective->Option.isNone
+                                    || Nullable.isNullable(verbStem)    
+                                }
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
                                     let value: string = target["value"]
@@ -571,6 +618,11 @@ let make = () => {
                                 name="ventive" 
                                 value="ventive" 
                                 checked={ventive}
+                                disabled={
+                                    isTransitive->Option.isNone 
+                                    || isPerfective->Option.isNone
+                                    || Nullable.isNullable(verbStem)    
+                                }
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
                                     let value: string = target["value"]
@@ -588,6 +640,11 @@ let make = () => {
                                 name="comitative" 
                                 value="comitative" 
                                 checked={comitative}
+                                disabled={
+                                    isTransitive->Option.isNone 
+                                    || isPerfective->Option.isNone
+                                    || Nullable.isNullable(verbStem)    
+                                }
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
                                     let value: string = target["value"]
@@ -603,6 +660,11 @@ let make = () => {
                                 name="ablative" 
                                 value="ablative" 
                                 checked={ablative}
+                                disabled={
+                                    isTransitive->Option.isNone 
+                                    || isPerfective->Option.isNone
+                                    || Nullable.isNullable(verbStem)    
+                                }
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
                                     let value: string = target["value"]
@@ -618,6 +680,11 @@ let make = () => {
                                 name="terminative" 
                                 value="terminative" 
                                 checked={terminative}
+                                disabled={
+                                    isTransitive->Option.isNone 
+                                    || isPerfective->Option.isNone
+                                    || Nullable.isNullable(verbStem)    
+                                }
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
                                     let value: string = target["value"]
@@ -635,6 +702,11 @@ let make = () => {
                                 name="middle-prefix" 
                                 value="middle-prefix" 
                                 checked={middlePrefix}
+                                disabled={
+                                    isTransitive->Option.isNone 
+                                    || isPerfective->Option.isNone
+                                    || Nullable.isNullable(verbStem)    
+                                }
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
                                     let value: string = target["value"]

@@ -4,9 +4,11 @@
 let make = () => {
     <div className={styles["home"]}>
         <p>{"Coming soon"->React.string}</p>
-        <p className="cuneiform">{["ul", "la", " ", "im", "ĝen"]
+        <p className="cuneiforms">{["ul", "la", " ", "im", "ĝen"]
             ->WebUtils.displayCuneiforms
+            ->Array.map(((cuneiform, _)) => cuneiform)
             ->Js.Array2.joinWith("")
-            ->React.string}</p>
+            ->React.string}
+        </p>
     </div>
 }
