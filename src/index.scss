@@ -86,4 +86,14 @@ body {
     will-change: transform, opacity;
     z-index: 0;
   }
+
+  a {
+    color: $botanical-night;
+    text-decoration: underline;
+
+    &:hover::after {
+      content: " \2197";
+      font-size: 0.9rem;
+    }
+  }
 }

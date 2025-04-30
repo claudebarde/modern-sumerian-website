@@ -142,16 +142,17 @@ let buildResults = (verb: FiniteVerb.t): Jsx.element => {
                 <span key="verbForm">
                     {conjugatedVerb->React.string}
                 </span>
-                <span className="cuneiforms" key="cuneiforms">
+                <span key="cuneiforms">
                     {
                         conjugatedVerb
                         ->parseVerbSyllables(verb.stem)
                         ->displayCuneiforms
                         ->Array.mapWithIndex(((codePoint, word), i) => {
-                            let element = <span key={codePoint ++ word ++ Int.toString(i)}>
-                                {codePoint->React.string}
-                            </span>
-                            React.cloneElement(element, {"data-tooltip": word})
+                            <CuneiformChar
+                                key={codePoint ++ word ++ Int.toString(i)}
+                                codePoint={codePoint}
+                                pronunciation={word}
+                            />
                         })
                         ->React.array
                     }
@@ -193,5 +194,32 @@ let buildResults = (verb: FiniteVerb.t): Jsx.element => {
             </span>
         ]->React.array
         | Error(err) => {err->React.string}
+    }
+}
+
+module EpsdDict = {
+    @module external epsdDict: JSON.t = "./epsd_links.json"
+
+    type epsdData = {
+        word: string,
+        ref: string,
+    }
+    type t = array<epsdData>
+    type defaultJsonImport = {
+        default: t,
+    }
+
+    @scope("JSON") @val
+    external parseEpsdDict: string => defaultJsonImport = "parse"
+
+    let getEpsdLink = (word: string): option<string> => {
+        let {default: dict} = epsdDict->JSON.stringify->parseEpsdDict
+        let epsdDict = 
+            dict->Array.map((item) => (item.word, item.ref))
+            ->Dict.fromArray
+        switch epsdDict->Dict.get(word) {
+        | Some(ref) => Some(`https://oracc.museum.upenn.edu/epsd2/sux/${ref}`)
+        | None => None
+        }
     }
 }

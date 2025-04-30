@@ -916,6 +916,23 @@ let make = () => {
                         </label>
                     </div>
                 </div>
+                {
+                    switch verbStem {
+                    | Value(stem) => {
+                        switch WebUtils.EpsdDict.getEpsdLink(stem.value) {
+                        | Some(link) => <div>
+                            <p>
+                                <a href={link} target="_blank">
+                                    {"EPSD Link"->React.string}
+                                </a>
+                            </p>
+                        </div>
+                        | None => React.null
+                    }
+                    }
+                    | _ => React.null
+                    }
+                }
             </div>
         </div>
         <div className={styles["result"]}>
