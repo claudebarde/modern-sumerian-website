@@ -139,7 +139,7 @@ let buildResults = (verb: FiniteVerb.t): Jsx.element => {
     switch verb->FiniteVerb.print {
         | Ok({verb: conjugatedVerb, analysis}) => [
             <div className={resultStyles["verbResult"]} key="verbResults">
-                <span key="verbForm">
+                <span style={fontSize: "1.2rem"} key="verbForm">
                     {conjugatedVerb->React.string}
                 </span>
                 <span key="cuneiforms">

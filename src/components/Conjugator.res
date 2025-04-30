@@ -28,6 +28,23 @@ module ReactSelect = {
     ) => React.element = "default"
 }
 
+type prefix =
+    | Modal
+    | Negative
+    | NegativeNan
+    | Ventive
+    | Comitative
+    | Ablative
+    | Terminative
+    | MiddlePrefix
+    | LocativeIn
+    | LocativeOn
+
+type modalPrefix =
+    | HA
+    | NAN
+    | NU
+
 @react.component
 let make = () => {
     let (error, setError) = React.useState(_ => None)
@@ -36,9 +53,7 @@ let make = () => {
     let (isPerfective, setIsPerfective) = React.useState(_ => None)
     let (isTransitive, setIsTransitive) = React.useState(_ => None)
     let (preformative, setPreformative) = React.useState(_ => None)
-    let (modal, setModal) = React.useState(_ => false)
-    let (negativeNan, setNegativeNan) = React.useState(_ => false)
-    let (negative, setNegative) = React.useState(_ => false)
+    let (modalPrefix, setModalPrefix) = React.useState(_ => None)
     let (ventive, setVentive) = React.useState(_ => false)
     let (comitative, setComitative) = React.useState(_ => false)
     let (ablative, setAblative) = React.useState(_ => false)
@@ -164,24 +179,22 @@ let make = () => {
         }
     }
 
-    let changePrefix = (value: string, checked: bool) => {
+    let changePrefix = (value: prefix, checked: bool) => {
         if Nullable.isNullable(verbStem) {
             setError(_ => Some("No verb stem selected"))
         } else if (Option.isNone(isPerfective) && Option.isNone(isTransitive)) {
             setError(_ => Some("Aspect and transitivity must be selected"))
         } else {
             switch value {
-                | "modal" => {
-                    setModal(_ => checked)
+                | Modal => {
+                    setModalPrefix(_ => Some(HA))
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
                             | Some(verb) => {
                                 setError(_ => None)
                                 if checked {
-                                    setModal(_ => checked)
                                     Some(FiniteVerb.setModal(verb))
                                 } else {
-                                    setModal(_ => checked)
                                     Some(FiniteVerb.resetModal(verb))
                                 }
                             }
@@ -189,8 +202,8 @@ let make = () => {
                         }
                     })
                 }
-                | "negative" => {
-                    setNegative(_ => checked)
+                | Negative => {
+                    setModalPrefix(_ => Some(NU))
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
                             | Some(verb) => {
@@ -205,8 +218,8 @@ let make = () => {
                         }
                     })
                 }
-                | "negative-nan" => {
-                    setNegativeNan(_ => checked)
+                | NegativeNan => {
+                    setModalPrefix(_ => Some(NAN))
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
                             | Some(verb) => {
@@ -221,7 +234,7 @@ let make = () => {
                         }
                     })
                 }
-                | "ventive" => {
+                | Ventive => {
                     setVentive(_ => checked)
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
@@ -239,7 +252,7 @@ let make = () => {
                         }
                     })
                 }
-                | "comitative" => {
+                | Comitative => {
                     setComitative(_ => checked)
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
@@ -257,7 +270,7 @@ let make = () => {
                         }
                     })
                 }
-                | "ablative" => {
+                | Ablative => {
                     setAblative(_ => checked)
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
@@ -275,7 +288,7 @@ let make = () => {
                         }
                     })
                 }
-                | "terminative" => {
+                | Terminative => {
                     setTerminative(_ => checked)
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
@@ -293,7 +306,7 @@ let make = () => {
                         }
                     })
                 }
-                | "middle-prefix" => {
+                | MiddlePrefix => {
                     setMiddlePrefix(_ => checked)
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
@@ -311,7 +324,7 @@ let make = () => {
                         }
                     })
                 }
-                | "locative-in" => {
+                | LocativeIn => {
                     setLocative(_ => Some("IN"))
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
@@ -323,7 +336,7 @@ let make = () => {
                         }
                     })
                 }
-                | "locative-on" => {
+                | LocativeOn => {
                     setLocative(_ => Some("ON"))
                     setVerbForm(prevVerbForm => {
                         switch prevVerbForm {
@@ -335,7 +348,6 @@ let make = () => {
                         }
                     })
                 }
-                | _ => ()
             }
         }
     }
@@ -713,9 +725,8 @@ let make = () => {
                                 }
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
-                                    let value: string = target["value"]
                                     let checked: bool = target["checked"]
-                                    changePrefix(value, checked)
+                                    changePrefix(Comitative, checked)
                                 }}
                             />
                             {"DA"->React.string}
@@ -733,9 +744,8 @@ let make = () => {
                                 }
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
-                                    let value: string = target["value"]
                                     let checked: bool = target["checked"]
-                                    changePrefix(value, checked)
+                                    changePrefix(Ablative, checked)
                                 }}
                             />
                             {"TA"->React.string}
@@ -753,9 +763,8 @@ let make = () => {
                                 }
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
-                                    let value: string = target["value"]
                                     let checked: bool = target["checked"]
-                                    changePrefix(value, checked)
+                                    changePrefix(Terminative, checked)
                                 }}
                             />
                             {"ŠI"->React.string}
@@ -773,9 +782,8 @@ let make = () => {
                                 }
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
-                                    let value: string = target["value"]
                                     let checked: bool = target["checked"]
-                                    changePrefix(value, checked)
+                                    changePrefix(LocativeIn, checked)
                                 }}
                             />
                             {"NI"->React.string}
@@ -793,9 +801,8 @@ let make = () => {
                                 }
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
-                                    let value: string = target["value"]
                                     let checked: bool = target["checked"]
-                                    changePrefix(value, checked)
+                                    changePrefix(LocativeOn, checked)
                                 }}
                             />
                             {"E"->React.string}
@@ -809,10 +816,10 @@ let make = () => {
                     <div className={styles["withLabels"]}>
                         <label>
                             <input 
-                                type_="checkbox" 
-                                name="modal" 
+                                type_="radio" 
+                                name="modalPrefixes" 
                                 value="modal"
-                                checked={modal}
+                                checked={modalPrefix == Some(HA)}
                                 disabled={
                                     isTransitive->Option.isNone 
                                     || isPerfective->Option.isNone
@@ -820,19 +827,18 @@ let make = () => {
                                 }
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
-                                    let value: string = target["value"]
                                     let checked: bool = target["checked"]
-                                    changePrefix(value, checked)
+                                    changePrefix(Modal, checked)
                                 }}
                              />
                             {"ḪA"->React.string}
                         </label>
                         <label>
                             <input 
-                                type_="checkbox" 
-                                name="negative-nan" 
+                                type_="radio" 
+                                name="modalPrefixes" 
                                 value="negative-nan" 
-                                checked={negative}
+                                checked={modalPrefix == Some(NAN)}
                                 disabled={
                                     isTransitive->Option.isNone 
                                     || isPerfective->Option.isNone
@@ -840,19 +846,18 @@ let make = () => {
                                 }
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
-                                    let value: string = target["value"]
                                     let checked: bool = target["checked"]
-                                    changePrefix(value, checked)
+                                    changePrefix(NegativeNan, checked)
                                 }}
                             />
                             {"NAN"->React.string}
                         </label>
                         <label>
                             <input 
-                                type_="checkbox" 
-                                name="negative" 
+                                type_="radio" 
+                                name="modalPrefixes" 
                                 value="negative" 
-                                checked={negative}
+                                checked={modalPrefix == Some(NU)}
                                 disabled={
                                     isTransitive->Option.isNone 
                                     || isPerfective->Option.isNone
@@ -860,9 +865,8 @@ let make = () => {
                                 }
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
-                                    let value: string = target["value"]
                                     let checked: bool = target["checked"]
-                                    changePrefix(value, checked)
+                                    changePrefix(Negative, checked)
                                 }}
                             />
                             {"NU"->React.string}
@@ -887,9 +891,8 @@ let make = () => {
                                 }
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
-                                    let value: string = target["value"]
                                     let checked: bool = target["checked"]
-                                    changePrefix(value, checked)
+                                    changePrefix(Ventive, checked)
                                 }}
                             />
                             {"MU"->React.string}
@@ -907,9 +910,8 @@ let make = () => {
                                 }
                                 onChange={ev => {
                                     let target = JsxEvent.Form.target(ev)
-                                    let value: string = target["value"]
                                     let checked: bool = target["checked"]
-                                    changePrefix(value, checked)
+                                    changePrefix(MiddlePrefix, checked)
                                 }}
                             />
                             {"BA"->React.string}
@@ -955,8 +957,7 @@ let make = () => {
                 setIsPerfective(_ => None)
                 setIsTransitive(_ => None)
                 setPreformative(_ => None)
-                setModal(_ => false)
-                setNegative(_ => false)
+                setModalPrefix(_ => None)
                 setVentive(_ => false)
                 setComitative(_ => false)
                 setAblative(_ => false)
