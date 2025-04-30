@@ -55,7 +55,7 @@ let new = (): t => {
 }
 
 let rec analyse = (verbArr: array<string>, verbRec:VerbShared.verbForm, verb: t, start: int): t => {
-    if start == 15 {
+    if start >= 15 {
         verb
     } else {
         switch (start, verbArr[start]) {
@@ -206,6 +206,7 @@ let output = (verb: t): array<(string, string)> => {
         | Some((prefix_type, prefix)) => switch prefix_type {
             | FirstPrefix.Modal => ("modal", prefix)
             | FirstPrefix.Negative => ("negative", prefix)
+            | FirstPrefix.NegativeNan => ("negativeNan", prefix)
         }
     };
     let slot2 = switch verb.slot2 {

@@ -25,3 +25,5 @@ type verbForm = {
     finalPersonSuffix: option<finalPersonSuffix>,
     subordinator: bool, // subordinator
 }
+
+type verbOutput = array<string>

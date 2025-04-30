@@ -85,6 +85,13 @@ let resetModal = (verb: t): t => {
     {...verb, firstPrefix: None}
 }
 
+let setNegativeNan = (verb: t): t => {
+    {...verb, firstPrefix: Some(FirstPrefix.NegativeNan)}
+}
+let resetNegativeNan = (verb: t): t => {
+    {...verb, firstPrefix: None}
+}
+
 let setPreformative = (verb: t, preformative: preformative): t => {
     {...verb, preformative: Some(preformative)}
 }
@@ -276,6 +283,12 @@ let setObject = (verb: t, person: personParam): t => {
         // but it will mess with the verb building with pipes
         verb
     }
+}
+// resetting the subject and the object is useful
+// when switching between transitive/intransitive and perfective/imperfective
+// on the website
+let resetSubjectObject = (verb: t): t => {
+    {...verb, finalPersonPrefix: None, finalPersonSuffix: None}
 }
 
 let setObliqueObject = (verb: t, person: personParam): t => {

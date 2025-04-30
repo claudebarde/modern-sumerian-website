@@ -1,26 +1,11 @@
 open Infixes 
+open Utils
 
-type t = array<string>;
+type t = VerbShared.verbOutput;
 type multiResult = {
     verb: string,
     analysis: VerbAnalysis.t,
 }
-
-let firstPrefixPos = 0
-let preformativePos = 1
-let coordinatorPos = 2
-let ventivePos = 3
-let middlePrefixPos = 4
-let initialPersonPrefixPos = 5
-let indirectObjectPrefixPos = 6
-let comitativePos = 7
-let adverbialPos = 8
-let locativePos = 9
-let finalPersonPrefixPos = 10
-let stemPos = 11;
-let edMarkerPos = 12
-let finalPersonSuffixPos = 13
-let subordinatorPos = 14
 
 let addStem = (stem: string, arr: t): result<t, string> => {
     arr[stemPos] = stem
@@ -34,6 +19,7 @@ let addFirstPrefix = (arr: result<t, string>, verb: VerbShared.verbForm): result
             switch (verb.firstPrefix) {
             | Some(FirstPrefix.Modal) => arr[firstPrefixPos] = "ḫa"
             | Some(FirstPrefix.Negative) => arr[firstPrefixPos] = "nu"
+            | Some(FirstPrefix.NegativeNan) => arr[firstPrefixPos] = "nan"
             | None => ()
             }
             Ok(arr)
@@ -149,6 +135,7 @@ let addComitative = (arr: result<t, string>, verb: VerbShared.verbForm): result<
 }
 
 let addLocative = (arr: result<t, string>, verb: VerbShared.verbForm): result<t, string> => {
+    // TODO: The local prefix {ni} is the only dimensional prefix that is never combined with an initial person-prefix. 20.2.1
     switch arr {
         | Error(err) => Error(err)
         | Ok(arr) => {
@@ -270,141 +257,6 @@ let addObliqueObject = (arr: result<t, string>, verb: VerbShared.verbForm): resu
     }
 }
 
-type markerName = 
-    | FirstPrefix
-    | Preformative
-    | Coordinator
-    | Ventive
-    | MiddlePrefix
-    | InitialPersonPrefix
-    | IndirectObjectPrefix
-    | Comitative
-    | Adverbial
-    | Locative
-    | FinalPersonPrefix
-    | Stem
-    | EdMarker
-    | FinalPersonSuffix
-    | Subordinator
-
-let markerByPos = (pos: int): option<markerName> => {
-    switch pos {
-        | 0 => Some(FirstPrefix)
-        | 1 => Some(Preformative)
-        | 2 => Some(Coordinator)
-        | 3 => Some(Ventive)
-        | 4 => Some(MiddlePrefix)
-        | 5 => Some(InitialPersonPrefix)
-        | 6 => Some(IndirectObjectPrefix)
-        | 7 => Some(Comitative)
-        | 8 => Some(Adverbial)
-        | 9 => Some(Locative)
-        | 10 => Some(FinalPersonPrefix)
-        | 11 => Some(Stem)
-        | 12 => Some(EdMarker)
-        | 13 => Some(FinalPersonSuffix)
-        | 14 => Some(Subordinator)
-        | _ => None
-    }
-}
-
-let markerToPos = (marker: markerName): int => {
-    switch marker {
-        | FirstPrefix => firstPrefixPos
-        | Preformative => preformativePos
-        | Coordinator => coordinatorPos
-        | Ventive => ventivePos
-        | MiddlePrefix => middlePrefixPos
-        | InitialPersonPrefix => initialPersonPrefixPos
-        | IndirectObjectPrefix => indirectObjectPrefixPos
-        | Comitative => comitativePos
-        | Adverbial => adverbialPos
-        | Locative => locativePos
-        | FinalPersonPrefix => finalPersonPrefixPos
-        | Stem => stemPos
-        | EdMarker => edMarkerPos
-        | FinalPersonSuffix => finalPersonSuffixPos
-        | Subordinator => subordinatorPos
-    }
-}
-
-let rec findPreviousMorpheme = (arr: t, pos: int): option<(string, markerName)> => {
-    if (pos < 1) {
-        None
-    } else {
-        switch arr[pos - 1] {
-            | Some(morph) if String.length(morph) > 0 => {
-                switch markerByPos(pos - 1) {
-                    | Some(marker) => Some((morph, marker))
-                    | None => None
-                }
-            }
-            | _ => findPreviousMorpheme(arr, pos - 1)
-        }
-    }
-}
-
-let rec findNextMorpheme = (arr: t, pos: int): option<(string, markerName)> => {
-    if (pos > 14) {
-        None
-    } else {
-        switch arr[pos + 1] {
-            | Some(morph) if String.length(morph) > 0 => {
-                switch markerByPos(pos + 1) {
-                    | Some(marker) => Some((morph, marker))
-                    | None => None
-                }
-            }
-            | _ => findNextMorpheme(arr, pos + 1)
-        }
-    }
-}
-
-let startsWithVowel = (str: string): bool => {
-    let firstChar = str -> Js.String2.get(0);
-    switch firstChar {
-        | "a" | "á" | "e" | "è" | "i" | "o" | "u" => true
-        | _ => false
-    }
-}
-
-let endsWithVowel = (str: string): bool => {
-    let lastChar = str -> Js.String2.get(Js.String2.length(str) - 1);
-    switch lastChar {
-        | "a" | "á" | "e" | "è" | "i" | "o" | "u" => true
-        | _ => false
-    }
-}
-
-let startsWithConsonant = (str: string): bool => {
-    let firstChar = str -> Js.String2.get(0);
-    switch firstChar {
-        | "b" | "d" | "h" | "ḫ" | "g" | "k" | "l" | "m" | "n" | "p" | "r" | "s" | "š" 
-        | "t" | "w" | "z" => true
-        | _ => false
-    }
-}
-
-let removeFirstChar = (str: string): string => {
-    if (String.length(str) > 0) {
-        str -> Js.String2.slice(~from=1, ~to_=Js.String2.length(str))
-    } else {
-        str
-    }
-}
-
-let consonantVowelSequence = (str: string): string => {
-    str 
-    -> Js.String2.split("")
-    -> Js.Array2.map((ch) => {
-        switch ch {
-            | "a" | "á" | "e" | "è" | "i" | "o" | "u" => "V"
-            | _ => "C"
-        }
-    })
-    ->Js.Array2.joinWith("")
-}
-
 let print = (verb: VerbShared.verbForm): result<multiResult, string> => {
     let newArr = Array.make(~length=15, "");
     // builds the array with all the markers
@@ -430,7 +282,7 @@ let print = (verb: VerbShared.verbForm): result<multiResult, string> => {
         | Ok(outputArr) => {
             // apply phonological changes to the markers
             let outputRes = {
-                // PERFORMATIVE CONTRACTION
+                // PREFORMATIVE CONTRACTION
                 // TODO: 24.3.1 they are never found before a prefix with the shape /CV/.
                 // Instead of a vocalic prefix we then find zero, that is, no preformative at all.
                 let outputArr = switch outputArr[preformativePos] {
@@ -439,6 +291,7 @@ let print = (verb: VerbShared.verbForm): result<multiResult, string> => {
                         switch findPreviousMorpheme(outputArr, preformativePos) {
                             | Some((marker, _)) => {
                                 switch (marker, preformative) {
+                                    // TODO: An imperfective form with {h~a} is always transitive 25.4.2
                                     | ("ḫa", "i") => {
                                         // If the verbal form begins with the vocalic prefix /ʔi/ (§24.3),
                                         // /ḫa/ contracts with it. The sequence /ḫaʔi/ thus becomes /ḫē/
@@ -565,14 +418,27 @@ let print = (verb: VerbShared.verbForm): result<multiResult, string> => {
                             // 21.2 (7) Although there are many plene spellings of the type ba-a-, they
                             // typically represent a sequence of two different prefixes, mostly a contraction of {ba} and {e}.
                             if locative === "e" {
+                                // TODO: 20.3.1 If the verbal form also contains a final person-prefix, the
+                                // local prefix {e} cannot be used at all.
                                 switch findPreviousMorpheme(outputArr, locativePos) {
+                                    // 20.3.1 This /e/ has the same forms and spellings as the final
+                                    // person-prefix {e} of the second person.
+                                    // Just like the latter, it contracts with a preceding vowel,                              lengthening the preceding vowel
                                     | Some((morpheme, marker)) => {
                                         switch marker {
                                             | MiddlePrefix if morpheme === "ba" => {
                                                 let _ = outputArr[locativePos] = "a"
                                                 outputArr
                                             } 
-                                            | _ => outputArr
+                                            | _ => {
+                                                if morpheme->endsWithVowel{
+                                                    let newMorpheme = String.substringToEnd(morpheme, ~start=String.length(morpheme) - 1)
+                                                    let _ = outputArr[locativePos] = newMorpheme
+                                                    outputArr
+                                                } else {
+                                                    outputArr
+                                                }
+                                            }
                                         }
                                     }
                                     | None => outputArr
@@ -586,10 +452,30 @@ let print = (verb: VerbShared.verbForm): result<multiResult, string> => {
                                                 let _ = outputArr[ventivePos] = "m"
                                                 outputArr
                                             } 
-                                            | _ => outputArr
+                                            | _ => {
+                                                switch outputArr[finalPersonPrefixPos] {
+                                                | Some(fpp) if fpp === "" => {
+                                                    // TODO: verify that "bi" behaves like "ni"
+                                                    let _ = outputArr[locativePos] = "b"
+                                                    outputArr
+                                                }
+                                                | _ => outputArr
+                                            }
+                                            }
                                         }
                                     }
                                     | None => outputArr
+                                }
+                            } else if locative === "ni" {
+                                switch outputArr[finalPersonPrefixPos] {
+                                    | Some(fpp) if fpp === "" => {
+                                        // 20.2.1 In the absence of a final person-prefix, the prefix {ni} stands immediately before the stem.
+                                        // Since every stem begins with a consonant and a vowel (§3.10), {ni} is then found in the
+                                        // sequence /niCV/, where the /i/ of the prefix is lost (§3.9.4).
+                                        let _ = outputArr[locativePos] = "n"
+                                        outputArr
+                                    }
+                                    | _ => outputArr
                                 }
                             } else {
                                 // no changes
@@ -686,7 +572,7 @@ let print = (verb: VerbShared.verbForm): result<multiResult, string> => {
                 switch outputArrRes {
                     | Error(err) => Error(err)
                     | Ok(outputArr) => {
-                        switch outputArr[ventivePos] {
+                        let outputArrRes = switch outputArr[ventivePos] {
                             | Some(ventive) if Js.String2.length(ventive) > 0 => {
                                 let iop = Option.getOr(outputArr[indirectObjectPrefixPos], "");
                                 if (iop === "ba") {
@@ -742,6 +628,79 @@ let print = (verb: VerbShared.verbForm): result<multiResult, string> => {
                                 }
                             }
                             | _ => Ok(outputArr)
+                        }
+
+                        switch outputArrRes {
+                        | Error(err) => Error(err)
+                        | Ok(outputArr) => switch outputArr[firstPrefixPos] {
+                                | Some(firstPrefix) if String.length(firstPrefix) > 0 => {
+                                    switch firstPrefix {
+                                    | "nu" => {
+                                        // 25.2 If the following vowel is /a/, {nu} becomes /na/. 
+                                        // This /na/ is written explicitly from the Ur III period onwards. Earlier texts have nu.
+                                        switch findNextMorpheme(outputArr, firstPrefixPos) {
+                                            | Some((morpheme, _)) => {
+                                                switch (morpheme->String.get(0), morpheme->String.get(1)) {
+                                                    | (Some(ch1), Some(ch2)) 
+                                                        if ch1 === "b" && ch2 === "a" => {
+                                                        let _ = outputArr[firstPrefixPos] = "la";
+                                                        Ok(outputArr)
+                                                    }
+                                                    | (Some(ch1), Some(ch2)) 
+                                                        if ch1 === "b" && ch2 === "i" => {
+                                                        let _ = outputArr[firstPrefixPos] = "li";
+                                                        Ok(outputArr)
+                                                    }
+                                                    | (Some(ch1), Some(ch2)) 
+                                                        if ch1 !== "b" && ch2 === "a" => {
+                                                        let _ = outputArr[firstPrefixPos] = "na";
+                                                        Ok(outputArr)
+                                                    }
+                                                    | (Some(ch1), Some(ch2)) 
+                                                        if ch1 !== "b" && ch2 === "i" => {
+                                                        let _ = outputArr[firstPrefixPos] = "na";
+                                                        Ok(outputArr)
+                                                    }
+                                                    | _ => {
+                                                        // no change
+                                                        Ok(outputArr)
+                                                    }
+                                                }
+                                            }
+                                            | _ => Ok(outputArr)
+                                        }
+                                        // TODO: 
+                                        // 17.2.4 (38) Also, the negative proclitic {nu} is never written nu-ù- before {ra}, a spelling that would be
+                                        // expected to occur if {nu} were followed by /÷i/ (§25.2). E.g.:
+                                    }
+                                    | "nan" => {
+                                        // TODO: 25.5 while negative {na(n)} is almost exclusively used in imperfective forms
+                                        // 25.5 /nan/ is used before a single consonant (i.e., before /CV/) and 
+                                        // /na/ before a cluster of two consonants (i.e., before /CC/). 
+                                        // The form /na/ is probably also the one used before a vowel
+                                        let tempVerb = outputArr->Array.sliceToEnd(~start=1)->Array.join("");
+                                        let cvcSeq = consonantVowelSequence(tempVerb);
+                                        if String.slice(cvcSeq, ~start=0, ~end=2) === "CC"
+                                            || String.slice(cvcSeq, ~start=0, ~end=1) === "V" {
+                                            let _ = outputArr[firstPrefixPos] = "na";
+                                            Ok(outputArr)
+                                        } else {
+                                            // 25.5 A by-form /nam/ occurs before /b/ or /m/
+                                            if String.slice(tempVerb, ~start=0, ~end=1) === "b"
+                                            || String.slice(tempVerb, ~start=0, ~end=1) === "m" {
+                                                let _ = outputArr[firstPrefixPos] = "nam";
+                                                Ok(outputArr)
+                                            } else {
+                                                // no change
+                                                Ok(outputArr)
+                                            }
+                                        }
+                                    }
+                                    | _ => Ok(outputArr)
+                                }
+                                }
+                                | _ => Ok(outputArr)
+                            } 
                         }
                     }
                 }

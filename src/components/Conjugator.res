@@ -37,11 +37,13 @@ let make = () => {
     let (isTransitive, setIsTransitive) = React.useState(_ => None)
     let (preformative, setPreformative) = React.useState(_ => None)
     let (modal, setModal) = React.useState(_ => false)
+    let (negativeNan, setNegativeNan) = React.useState(_ => false)
     let (negative, setNegative) = React.useState(_ => false)
     let (ventive, setVentive) = React.useState(_ => false)
     let (comitative, setComitative) = React.useState(_ => false)
     let (ablative, setAblative) = React.useState(_ => false)
     let (terminative, setTerminative) = React.useState(_ => false)
+    let (locative, setLocative) = React.useState(_ => None)
     let (middlePrefix, setMiddlePrefix) = React.useState(_ => false)
     let (initialPersonPrefix, setInitialPersonPrefix) = React.useState(_ => Nullable.null)
     let (subject, setSubject) = React.useState(_ => Nullable.null)
@@ -194,11 +196,25 @@ let make = () => {
                             | Some(verb) => {
                                 setError(_ => None)
                                 if checked {
-                                    setNegative(_ => checked)
                                     Some(FiniteVerb.setNegative(verb))
                                 } else {
-                                    setNegative(_ => checked)
                                     Some(FiniteVerb.resetNegative(verb))
+                                }
+                            }
+                            | None => None
+                        }
+                    })
+                }
+                | "negative-nan" => {
+                    setNegativeNan(_ => checked)
+                    setVerbForm(prevVerbForm => {
+                        switch prevVerbForm {
+                            | Some(verb) => {
+                                setError(_ => None)
+                                if checked {
+                                    Some(FiniteVerb.setNegativeNan(verb))
+                                } else {
+                                    Some(FiniteVerb.resetNegativeNan(verb))
                                 }
                             }
                             | None => None
@@ -295,6 +311,30 @@ let make = () => {
                         }
                     })
                 }
+                | "locative-in" => {
+                    setLocative(_ => Some("IN"))
+                    setVerbForm(prevVerbForm => {
+                        switch prevVerbForm {
+                            | Some(verb) => {
+                                setError(_ => None)
+                                Some(FiniteVerb.setLocativeIn(verb, None))
+                            }
+                            | None => None
+                        }
+                    })
+                }
+                | "locative-on" => {
+                    setLocative(_ => Some("ON"))
+                    setVerbForm(prevVerbForm => {
+                        switch prevVerbForm {
+                            | Some(verb) => {
+                                setError(_ => None)
+                                Some(FiniteVerb.setLocativeOn(verb, None))
+                            }
+                            | None => None
+                        }
+                    })
+                }
                 | _ => ()
             }
         }
@@ -335,7 +375,28 @@ let make = () => {
                                             | Some(verb) => {
                                                 setError(_ => None)
                                                 setIsPerfective(_ => Some(true))
-                                                Some(FiniteVerb.isPerfective(verb))
+                                                switch (subject, object) {
+                                                    | (Value(subj), Value(obj)) =>
+                                                        verb
+                                                        ->FiniteVerb.resetSubjectObject
+                                                        ->FiniteVerb.isPerfective
+                                                        ->FiniteVerb.setSubject(subj)
+                                                        ->FiniteVerb.setObject(obj)
+                                                        ->Some
+                                                    | (Value(subj), _) => 
+                                                        verb
+                                                        ->FiniteVerb.resetSubjectObject
+                                                        ->FiniteVerb.isPerfective
+                                                        ->FiniteVerb.setSubject(subj)
+                                                        ->Some
+                                                    | (_, Value(obj)) => 
+                                                        verb
+                                                        ->FiniteVerb.resetSubjectObject
+                                                        ->FiniteVerb.isPerfective
+                                                        ->FiniteVerb.setObject(obj)
+                                                        ->Some
+                                                    | _ => Some(FiniteVerb.isPerfective(verb))
+                                                }
                                             }
                                             | None => None
                                         }
@@ -360,7 +421,28 @@ let make = () => {
                                             | Some(verb) => {
                                                 setError(_ => None)
                                                 setIsPerfective(_ => Some(false))
-                                                Some(FiniteVerb.isImperfective(verb, None))
+                                                switch (subject, object) {
+                                                    | (Value(subj), Value(obj)) =>
+                                                        verb
+                                                        ->FiniteVerb.resetSubjectObject
+                                                        ->FiniteVerb.isImperfective(None)
+                                                        ->FiniteVerb.setSubject(subj)
+                                                        ->FiniteVerb.setObject(obj)
+                                                        ->Some
+                                                    | (Value(subj), _) => 
+                                                        verb
+                                                        ->FiniteVerb.resetSubjectObject
+                                                        ->FiniteVerb.isImperfective(None)
+                                                        ->FiniteVerb.setSubject(subj)
+                                                        ->Some
+                                                    | (_, Value(obj)) => 
+                                                        verb
+                                                        ->FiniteVerb.resetSubjectObject
+                                                        ->FiniteVerb.isImperfective(None)
+                                                        ->FiniteVerb.setObject(obj)
+                                                        ->Some
+                                                    | _ => Some(FiniteVerb.isImperfective(verb, None))
+                                                }
                                             }
                                             | None => None
                                         }
@@ -392,7 +474,28 @@ let make = () => {
                                             | Some(verb) => {
                                                 setError(_ => None)
                                                 setIsTransitive(_ => Some(true))
-                                                Some(FiniteVerb.isTransitive(verb))
+                                                switch (subject, object) {
+                                                    | (Value(subj), Value(obj)) =>
+                                                        verb
+                                                        ->FiniteVerb.resetSubjectObject
+                                                        ->FiniteVerb.isTransitive
+                                                        ->FiniteVerb.setSubject(subj)
+                                                        ->FiniteVerb.setObject(obj)
+                                                        ->Some
+                                                    | (Value(subj), _) => 
+                                                        verb
+                                                        ->FiniteVerb.resetSubjectObject
+                                                        ->FiniteVerb.isTransitive
+                                                        ->FiniteVerb.setSubject(subj)
+                                                        ->Some
+                                                    | (_, Value(obj)) => 
+                                                        verb
+                                                        ->FiniteVerb.resetSubjectObject
+                                                        ->FiniteVerb.isTransitive
+                                                        ->FiniteVerb.setObject(obj)
+                                                        ->Some
+                                                    | _ => Some(FiniteVerb.isTransitive(verb))
+                                                }
                                             }
                                             | None => None
                                         }
@@ -417,7 +520,28 @@ let make = () => {
                                             | Some(verb) => {
                                                 setError(_ => None)
                                                 setIsTransitive(_ => Some(false))
-                                                Some(FiniteVerb.isIntransitive(verb))
+                                                switch (subject, object) {
+                                                    | (Value(subj), Value(obj)) =>
+                                                        verb
+                                                        ->FiniteVerb.resetSubjectObject
+                                                        ->FiniteVerb.isIntransitive
+                                                        ->FiniteVerb.setSubject(subj)
+                                                        ->FiniteVerb.setObject(obj)
+                                                        ->Some
+                                                    | (Value(subj), _) => 
+                                                        verb
+                                                        ->FiniteVerb.resetSubjectObject
+                                                        ->FiniteVerb.isIntransitive
+                                                        ->FiniteVerb.setSubject(subj)
+                                                        ->Some
+                                                    | (_, Value(obj)) => 
+                                                        verb
+                                                        ->FiniteVerb.resetSubjectObject
+                                                        ->FiniteVerb.isIntransitive
+                                                        ->FiniteVerb.setObject(obj)
+                                                        ->Some
+                                                    | _ => Some(FiniteVerb.isIntransitive(verb))
+                                                }
                                             }
                                             | None => None
                                         }
@@ -573,70 +697,8 @@ let make = () => {
                 </div>
                 <div>
                     <p>
-                        {"Other Prefixes"->React.string}
+                        {"Dimensional Prefixes"->React.string}
                     </p>
-                    <div className={styles["withLabels"]}>
-                        <label>
-                            <input 
-                                type_="checkbox" 
-                                name="modal" 
-                                value="modal"
-                                checked={modal}
-                                disabled={
-                                    isTransitive->Option.isNone 
-                                    || isPerfective->Option.isNone
-                                    || Nullable.isNullable(verbStem)    
-                                }
-                                onChange={ev => {
-                                    let target = JsxEvent.Form.target(ev)
-                                    let value: string = target["value"]
-                                    let checked: bool = target["checked"]
-                                    changePrefix(value, checked)
-                                }}
-                             />
-                            {"ḪA"->React.string}
-                        </label>
-                        <label>
-                            <input 
-                                type_="checkbox" 
-                                name="negative" 
-                                value="negative" 
-                                checked={negative}
-                                disabled={
-                                    isTransitive->Option.isNone 
-                                    || isPerfective->Option.isNone
-                                    || Nullable.isNullable(verbStem)    
-                                }
-                                onChange={ev => {
-                                    let target = JsxEvent.Form.target(ev)
-                                    let value: string = target["value"]
-                                    let checked: bool = target["checked"]
-                                    changePrefix(value, checked)
-                                }}
-                            />
-                            {"NU"->React.string}
-                        </label>
-                        <label>
-                            <input 
-                                type_="checkbox" 
-                                name="ventive" 
-                                value="ventive" 
-                                checked={ventive}
-                                disabled={
-                                    isTransitive->Option.isNone 
-                                    || isPerfective->Option.isNone
-                                    || Nullable.isNullable(verbStem)    
-                                }
-                                onChange={ev => {
-                                    let target = JsxEvent.Form.target(ev)
-                                    let value: string = target["value"]
-                                    let checked: bool = target["checked"]
-                                    changePrefix(value, checked)
-                                }}
-                            />
-                            {"MU"->React.string}
-                        </label>
-                    </div>
                     <div className={styles["withLabels"]}>
                         <label>
                             <input 
@@ -698,8 +760,140 @@ let make = () => {
                             />
                             {"ŠI"->React.string}
                         </label>
+                        <label>
+                            <input 
+                                type_="checkbox" 
+                                name="locative-in" 
+                                value="locative-in" 
+                                checked={locative === Some("IN")}
+                                disabled={
+                                    isTransitive->Option.isNone 
+                                    || isPerfective->Option.isNone
+                                    || Nullable.isNullable(verbStem)    
+                                }
+                                onChange={ev => {
+                                    let target = JsxEvent.Form.target(ev)
+                                    let value: string = target["value"]
+                                    let checked: bool = target["checked"]
+                                    changePrefix(value, checked)
+                                }}
+                            />
+                            {"NI"->React.string}
+                        </label>
+                        <label>
+                            <input 
+                                type_="checkbox" 
+                                name="locative-on" 
+                                value="locative-on" 
+                                checked={locative === Some("ON")}
+                                disabled={
+                                    isTransitive->Option.isNone 
+                                    || isPerfective->Option.isNone
+                                    || Nullable.isNullable(verbStem)    
+                                }
+                                onChange={ev => {
+                                    let target = JsxEvent.Form.target(ev)
+                                    let value: string = target["value"]
+                                    let checked: bool = target["checked"]
+                                    changePrefix(value, checked)
+                                }}
+                            />
+                            {"E"->React.string}
+                        </label>
                     </div>
-                    <div className={styles["withLabels"]}>                        
+                </div>
+                <div>
+                    <p>
+                        {"Modal Prefixes"->React.string}
+                    </p>
+                    <div className={styles["withLabels"]}>
+                        <label>
+                            <input 
+                                type_="checkbox" 
+                                name="modal" 
+                                value="modal"
+                                checked={modal}
+                                disabled={
+                                    isTransitive->Option.isNone 
+                                    || isPerfective->Option.isNone
+                                    || Nullable.isNullable(verbStem)    
+                                }
+                                onChange={ev => {
+                                    let target = JsxEvent.Form.target(ev)
+                                    let value: string = target["value"]
+                                    let checked: bool = target["checked"]
+                                    changePrefix(value, checked)
+                                }}
+                             />
+                            {"ḪA"->React.string}
+                        </label>
+                        <label>
+                            <input 
+                                type_="checkbox" 
+                                name="negative-nan" 
+                                value="negative-nan" 
+                                checked={negative}
+                                disabled={
+                                    isTransitive->Option.isNone 
+                                    || isPerfective->Option.isNone
+                                    || Nullable.isNullable(verbStem)    
+                                }
+                                onChange={ev => {
+                                    let target = JsxEvent.Form.target(ev)
+                                    let value: string = target["value"]
+                                    let checked: bool = target["checked"]
+                                    changePrefix(value, checked)
+                                }}
+                            />
+                            {"NAN"->React.string}
+                        </label>
+                        <label>
+                            <input 
+                                type_="checkbox" 
+                                name="negative" 
+                                value="negative" 
+                                checked={negative}
+                                disabled={
+                                    isTransitive->Option.isNone 
+                                    || isPerfective->Option.isNone
+                                    || Nullable.isNullable(verbStem)    
+                                }
+                                onChange={ev => {
+                                    let target = JsxEvent.Form.target(ev)
+                                    let value: string = target["value"]
+                                    let checked: bool = target["checked"]
+                                    changePrefix(value, checked)
+                                }}
+                            />
+                            {"NU"->React.string}
+                        </label>
+                    </div> 
+                </div>
+                <div>
+                    <p>
+                        {"Other Prefixes"->React.string}
+                    </p>                   
+                    <div className={styles["withLabels"]}>   
+                        <label>
+                            <input 
+                                type_="checkbox" 
+                                name="ventive" 
+                                value="ventive" 
+                                checked={ventive}
+                                disabled={
+                                    isTransitive->Option.isNone 
+                                    || isPerfective->Option.isNone
+                                    || Nullable.isNullable(verbStem)    
+                                }
+                                onChange={ev => {
+                                    let target = JsxEvent.Form.target(ev)
+                                    let value: string = target["value"]
+                                    let checked: bool = target["checked"]
+                                    changePrefix(value, checked)
+                                }}
+                            />
+                            {"MU"->React.string}
+                        </label>                     
                         <label>
                             <input 
                                 type_="checkbox" 

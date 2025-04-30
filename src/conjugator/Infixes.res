@@ -12,6 +12,7 @@ module FirstPrefix = {
     type t =
     | Modal
     | Negative
+    | NegativeNan
 }
 
 type preformative =

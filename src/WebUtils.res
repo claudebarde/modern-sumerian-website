@@ -14,7 +14,7 @@ external parseCuneiformData: string => jsonCuneiformData = "parse"
 
 type cuneiformData = (string, string) // (Unicode code point, sound)
 
-let fallbackDict = Dict.fromArray([("eme", "0x12174"), ("ĝir15", "0x120A0"), ("ul", "0x12109"), ("la", "0x121B7"), ("im", "0x1214E"), ("ĝen", "0x1207A"), ("ʔak", "0x1201D"), ("tuku", "0x12307"), ("niĝ", "0x120FB")]) 
+let fallbackDict = Dict.fromArray([("eme", "0x12174"), ("ĝir15", "0x120A0"), ("ul", "0x12109"), ("la", "0x121B7"), ("im", "0x1214E"), ("ĝen", "0x1207A"), ("ʔak", "0x1201D"), ("tuku", "0x12307"), ("niĝ", "0x120FB"), ("šum", "0x122E7"), ("naĝ", "0x12158")]) 
 
 let searchCuneiforms = (words: array<string>): array<(string, option<string>)> => {
     let cuneiformData = cuneiformCodePoints->JSON.stringify->parseCuneiformData
